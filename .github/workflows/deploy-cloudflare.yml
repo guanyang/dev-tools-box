@@ -51,7 +51,7 @@ jobs:
 
       - name: Generate current hash
         run: |
-          find dist -type f -exec sha256sum {} + | sort | sha256sum | cut -d' ' -f1 > current.txt
+          find app worker public build package.json package-lock.json vite.config.ts tsconfig.json -type f -exec sha256sum {} + | sort | sha256sum | cut -d' ' -f1 > current.txt
 
       - name: Compare hashes
         id: compare-hashes
