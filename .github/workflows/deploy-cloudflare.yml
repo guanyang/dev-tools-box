@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+  release:
+    types: [published]
   workflow_dispatch:
 
 permissions:
@@ -38,5 +40,55 @@ jobs:
       - name: Test and build
         run: npm test
 
+      - name: Restore previous build hash
+        id: restore-hash
+        uses: actions/cache/restore@v4
+        with:
+          path: cached_hash/hash.txt
+          key: dist-hash-${{ github.ref_name }}-${{ github.sha }}
+          restore-keys: |
+            dist-hash-${{ github.ref_name }}-
+
+      - name: Generate current hash
+        run: |
+          find dist -type f -exec sha256sum {} + | sort | sha256sum | cut -d' ' -f1 > current.txt
+
+      - name: Compare hashes
+        id: compare-hashes
+        run: |
+          if [ "${{ github.event_name }}" = "release" ] || [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "Triggered by ${{ github.event_name }}. Forcing deployment."
+            echo "changed=true" >> $GITHUB_OUTPUT
+          elif [ -f cached_hash/hash.txt ]; then
+            PREV_HASH=$(cat cached_hash/hash.txt)
+            CURR_HASH=$(cat current.txt)
+            echo "Previous hash: $PREV_HASH"
+            echo "Current hash: $CURR_HASH"
+            if [ "$PREV_HASH" = "$CURR_HASH" ]; then
+              echo "No changes in build artifacts. Skipping deployment."
+              echo "changed=false" >> $GITHUB_OUTPUT
+            else
+              echo "Build artifacts changed. Deploying."
+              echo "changed=true" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "No previous hash found. Deploying."
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
       - name: Deploy Worker
+        if: steps.compare-hashes.outputs.changed == 'true'
         run: npx wrangler deploy --config dist/server/wrangler.json --name dev-tools-box
+
+      - name: Save new build hash
+        if: steps.compare-hashes.outputs.changed == 'true'
+        run: |
+          mkdir -p cached_hash
+          cp current.txt cached_hash/hash.txt
+
+      - name: Cache build hash
+        if: steps.compare-hashes.outputs.changed == 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: cached_hash/hash.txt
+          key: dist-hash-${{ github.ref_name }}-${{ github.sha }}
