@@ -42,7 +42,7 @@ jobs:
 
       - name: Restore previous build hash
         id: restore-hash
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         with:
           path: cached_hash/hash.txt
           key: dist-hash-${{ github.ref_name }}-${{ github.sha }}
@@ -88,7 +88,7 @@ jobs:
 
       - name: Cache build hash
         if: steps.compare-hashes.outputs.changed == 'true'
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         with:
           path: cached_hash/hash.txt
           key: dist-hash-${{ github.ref_name }}-${{ github.sha }}
