@@ -30,6 +30,10 @@
 </p>
 
 <p align="center">
+  简体中文 | <a href="./README_EN.md">English</a>
+</p>
+
+<p align="center">
   <img src="docs/images/ScreenShot_extension.png" alt="DevTools Box Screenshot" width="700" />
 </p>
 
