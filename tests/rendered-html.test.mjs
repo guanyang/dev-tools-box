@@ -44,56 +44,62 @@ test("server-renders the developer tools workbench", async () => {
 });
 
 test("keeps the finished site free of starter preview artifacts", async () => {
-  const [page, codec, styles, layout, packageJson] = await Promise.all([
+  const [page, workbench, codec, styles, layout, packageJson] = await Promise.all([
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/dev-tools-workbench.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/codec.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
     readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
     readFile(new URL("../package.json", import.meta.url), "utf8"),
   ]);
 
-  assert.match(page, /function mergeDocLine/);
-  assert.match(page, /function mergeJsonPath/);
-  assert.match(page, /useState\(false\)/);
-  assert.match(page, /rail-expanded/);
-  assert.match(page, /FileDiff/);
-  assert.match(page, /GitCompareArrows/);
-  assert.match(page, /function JsonHighlight/);
-  assert.match(page, /function JsonEditor/);
-  assert.match(page, /@uiw\/react-codemirror/);
-  assert.match(page, /@codemirror\/lang-json/);
-  assert.match(page, /prism-react-renderer/);
-  assert.match(page, /passwordCount, setPasswordCount/);
-  assert.match(page, /function normalizeIntegerInput/);
-  assert.match(page, /Array\.from\(\{ length: count \}/);
-  assert.match(page, /生成数量/);
-  assert.match(page, /大写字母/);
-  assert.match(page, /小写字母/);
-  assert.match(page, /特殊符号/);
-  assert.match(page, /max="256"/);
-  assert.match(page, /max="1000"/);
-  assert.match(page, /全部复制/);
-  assert.match(page, /passwords\.join\("\\n"\)/);
-  assert.ok(page.indexOf("password-controls") < page.indexOf("password-results-header"));
-  assert.match(page, /new Uint32Array\(length\)/);
-  assert.match(page, /codecMethods/);
-  assert.match(page, /信息编解码工具/);
+  assert.match(page, /DevToolsWorkbench/);
+  assert.match(workbench, /export function DevToolsWorkbench/);
+  assert.match(workbench, /function mergeDocLine/);
+  assert.match(workbench, /function mergeJsonPath/);
+  assert.match(workbench, /onToolChange\?\.\(toolId\)/);
+  assert.match(workbench, /normalizeToolId\(initialTool\)/);
+  assert.match(workbench, /useState\(false\)/);
+  assert.match(workbench, /rail-expanded/);
+  assert.match(workbench, /FileDiff/);
+  assert.match(workbench, /GitCompareArrows/);
+  assert.match(workbench, /function JsonHighlight/);
+  assert.match(workbench, /function JsonEditor/);
+  assert.match(workbench, /@uiw\/react-codemirror/);
+  assert.match(workbench, /@codemirror\/lang-json/);
+  assert.match(workbench, /prism-react-renderer/);
+  assert.match(workbench, /passwordCount, setPasswordCount/);
+  assert.match(workbench, /function normalizeIntegerInput/);
+  assert.match(workbench, /Array\.from\(\{ length: count \}/);
+  assert.match(workbench, /生成数量/);
+  assert.match(workbench, /大写字母/);
+  assert.match(workbench, /小写字母/);
+  assert.match(workbench, /特殊符号/);
+  assert.match(workbench, /max="256"/);
+  assert.match(workbench, /max="1000"/);
+  assert.match(workbench, /全部复制/);
+  assert.match(workbench, /passwords\.join\("\\n"\)/);
+  assert.ok(
+    workbench.indexOf("password-controls") < workbench.indexOf("password-results-header"),
+  );
+  assert.match(workbench, /new Uint32Array\(length\)/);
+  assert.match(workbench, /codecMethods/);
   assert.equal((codec.match(/group: "encode"/g) ?? []).length, 12);
   assert.equal((codec.match(/group: "decode"/g) ?? []).length, 12);
   assert.match(codec, /case "gzip-compress"/);
   assert.match(codec, /case "proto-hex"/);
-  assert.match(page, /setPasswordLength\(event\.target\.value\)/);
-  assert.match(page, /setPasswordCount\(event\.target\.value\)/);
-  assert.match(page, /copy-toast visible/);
-  assert.match(page, /copyTimerRef/);
-  assert.doesNotMatch(page, /\{copyStatus &&/);
+  assert.match(workbench, /setPasswordLength\(event\.target\.value\)/);
+  assert.match(workbench, /setPasswordCount\(event\.target\.value\)/);
+  assert.match(workbench, /copy-toast visible/);
+  assert.match(workbench, /copyTimerRef/);
+  assert.doesNotMatch(workbench, /\{copyStatus &&/);
   assert.match(styles, /\.editor-block > span/);
   assert.match(styles, /user-select: text/);
   assert.match(styles, /cm-selectionBackground/);
   assert.match(styles, /\.action-bar\.codec-actions button:not\(:first-child\):disabled/);
   assert.match(layout, /title:\s*"开发者工具箱"/);
   assert.doesNotMatch(layout, /codex-preview|_sites-preview/);
-  assert.doesNotMatch(page, /SkeletonPreview/);
+  assert.doesNotMatch(workbench, /SkeletonPreview/);
   assert.doesNotMatch(packageJson, /react-loading-skeleton/);
 
   await assert.rejects(access(new URL("../app/_sites-preview", import.meta.url)));

@@ -37,7 +37,8 @@ body {
     linear-gradient(180deg, rgba(15, 123, 108, 0.08), rgba(15, 123, 108, 0) 280px),
     var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), "Noto Sans SC", "Microsoft YaHei", sans-serif;
+  font-family: var(--font-geist-sans), system-ui, -apple-system, "Segoe UI",
+    "Noto Sans SC", "Microsoft YaHei", sans-serif;
 }
 
 button,
