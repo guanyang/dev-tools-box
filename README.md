@@ -106,6 +106,24 @@ npm test
 npm run build
 ```
 
+## 🧩 浏览器扩展
+
+扩展支持 Chrome、Edge 和 Firefox，完整工具箱和运行时资源都包含在扩展包中，可断网使用。扩展不读取当前网页，不申请主机访问权限，也不上传工具输入或结果。
+
+```bash
+npm run extension:dev
+npm run extension:build
+npm run extension:package
+```
+
+构建目录位于 `dist-extension/<browser>/`，版本化 ZIP 位于 `artifacts/`。
+
+### 本地加载
+
+- Chrome：打开 `chrome://extensions`，启用开发者模式，选择“加载已解压的扩展程序”，然后选择 `dist-extension/chrome`。
+- Edge：打开 `edge://extensions`，启用开发人员模式，选择“加载解压缩的扩展”，然后选择 `dist-extension/edge`。
+- Firefox：打开 `about:debugging#/runtime/this-firefox`，选择“临时载入附加组件”，然后选择 `dist-extension/firefox/manifest.json`。临时扩展会在 Firefox 重启后移除。
+
 ---
 
 ## 🌐 自动部署 (Deployment)

@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added / 新增功能
 
+#### 🧩 浏览器扩展 (Browser Extensions)
+- 新增 Chrome、Edge 和 Firefox 离线扩展构建，支持通过 Popup 快捷入口直达完整工具箱。
+
 #### 🧰 五大核心开发者工具 (5 Core Dev Tools)
 - **文档差异比对 (Document Diff)**
   - 支持左右对照以及高亮比对两段文本差异，快速定位新增、删除和修改。
