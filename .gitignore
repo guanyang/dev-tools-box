@@ -40,5 +40,7 @@ next-env.d.ts
 /.wrangler/
 /outputs/
 /work/
+/dist-extension/
+/artifacts/
 
 .openai
