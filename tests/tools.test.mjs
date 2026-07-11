@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 import {
@@ -25,4 +26,18 @@ test("normalizes missing and unknown tool IDs to the default", () => {
 test("builds relative toolbox URLs for Popup navigation", () => {
   assert.equal(toolboxHref(), "toolbox.html");
   assert.equal(toolboxHref("codec"), "toolbox.html?tool=codec");
+});
+
+test("extension entries use shared navigation and history replacement", async () => {
+  const [popup, toolbox] = await Promise.all([
+    readFile(new URL("../extension/popup/main.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../extension/toolbox/main.tsx", import.meta.url), "utf8"),
+  ]);
+
+  assert.match(popup, /tools\.map/);
+  assert.match(popup, /toolboxHref\(tool\.id\)/);
+  assert.match(popup, /target="_blank"/);
+  assert.match(toolbox, /normalizeToolId\(params\.get\("tool"\)\)/);
+  assert.match(toolbox, /window\.history\.replaceState/);
+  assert.match(toolbox, /<DevToolsWorkbench/);
 });
