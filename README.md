@@ -83,7 +83,7 @@
 ### 安装与启动
 1. 进入项目目录：
    ```bash
-   cd dev-tools-site
+   cd dev-tools-box
    ```
 2. 安装依赖：
    ```bash
@@ -120,7 +120,7 @@ npm run build
 - `CLOUDFLARE_API_TOKEN`：具有 Workers Scripts 编辑权限的 Cloudflare API Token。
 - `CLOUDFLARE_ACCOUNT_ID`：Cloudflare 账户 ID。
 
-首次成功部署后，系统会自动创建名为 `dev-tools-site` 的 Worker，后续推送将自动完成滚动更新。
+首次成功部署后，系统会自动创建名为 `dev-tools-box` 的 Worker，后续推送将自动完成滚动更新。
 
 ---
 

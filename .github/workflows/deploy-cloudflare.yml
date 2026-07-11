@@ -39,4 +39,4 @@ jobs:
         run: npm test
 
       - name: Deploy Worker
-        run: npx wrangler deploy --config dist/server/wrangler.json --name dev-tools-site
+        run: npx wrangler deploy --config dist/server/wrangler.json --name dev-tools-box
