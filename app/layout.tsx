@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "开发者工具箱",
-  description: "文档差异、JSON 格式化、JSON 差异和随机密码生成工具。",
+  description: "离线使用文档差异、数据转换、正则、时间、哈希与安全随机生成工具。",
   icons: {
     icon: "/favicon.svg",
     shortcut: "/favicon.svg",

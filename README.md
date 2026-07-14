@@ -50,6 +50,7 @@
   - 基于 **React 19 + TailwindCSS 4.0** 打造的现代流线型界面。
   - 支持 **明暗主题 (Dark/Light Mode)** 切换。
   - 集成专业级 **CodeMirror** 编辑器，支持语法高亮和实时错误校验。
+- 🔎 **快速发现工具**：支持按名称或关键词搜索、分类筛选、收藏和最近使用；偏好仅保存在浏览器本地。
 - 🚀 **零配置部署 (Serverless Friendly)**：原生适配 Cloudflare Workers/Pages 边缘运行环境，预置 GitHub Actions 持续集成工作流。
 
 ---
@@ -77,7 +78,7 @@
 - 支持一键左右双向合并，轻松打补丁或复制结果。
 
 ### 2. 🎛️ JSON 格式化与编辑 (JSON Formatter)
-- 基于 CodeMirror 提供行号、高亮 and 括号匹配。
+- 基于 CodeMirror 提供行号、高亮和括号匹配。
 - 支持一键美化（Format）与一键压缩（Minify）。
 - 实时校验 JSON 语法，精准定位错误行数与原因。
 
@@ -87,7 +88,7 @@
 
 ### 4. 🔑 随机密码生成器 (Password Generator)
 - 强随机性字符生成。
-- 可控参数：密码长度（6-64位）、字符集选择（大写、小写、数字、特殊符号）。
+- 可控参数：密码长度（1-256 位）、生成数量（1-1000 个）和字符集选择。
 - 支持一键批量生成与安全复制。
 
 ### 5. 🧮 24 种编解码与解析工具 (Codec Engine)
@@ -105,6 +106,26 @@
 | | Gzip 解压 | 还原压缩后的 Base64 文本数据 |
 | | **Proto Hex 解析** | **亮点功能！** 直接将 Protobuf 的 Hex 十六进制原始数据解析为结构化 JSON 树 |
 
+### 6. 🪪 ID 与 Token 生成 (ID & Token Generator)
+- 批量生成 UUID v4、UUID v7、ULID 和 URL 安全随机 Token。
+- 使用浏览器安全随机数，支持一键复制单项或全部结果。
+
+### 7. #️⃣ 哈希与文件校验 (Hash & Checksum)
+- 计算文本或本地文件的 SHA-256、SHA-512 摘要。
+- 支持使用用户输入密钥计算 HMAC，内容不会离开浏览器。
+
+### 8. 🕐 时间与 Cron (Time & Cron)
+- 自动识别秒/毫秒 Unix 时间戳，并按常用时区显示。
+- 解析标准 5 字段 Cron 表达式，列出后续执行时间。
+
+### 9. 🧪 正则表达式测试 (Regex Tester)
+- 实时展示匹配位置、捕获组、命名组和替换预览。
+- 支持 `g`、`i`、`m`、`s`、`u` Flags。
+
+### 10. 🔄 JSON/YAML 与 JSONPath (Data Converter)
+- JSON 与 YAML 双向转换。
+- 对 JSON 输入执行 JSONPath 查询并输出结构化结果。
+
 ---
 
 ## 🛠️ 技术栈 (Tech Stack)
@@ -115,6 +136,7 @@
 - **核心组件**:
   - [@uiw/react-codemirror](https://github.com/uiwjs/react-codemirror) - 集成专业代码编辑。
   - [@noble/hashes](https://github.com/paulmillr/noble-hashes) - 纯 JS 实现的加密哈希库.
+  - [yaml](https://eemeli.org/yaml/) / [JSONPath Plus](https://github.com/JSONPath-Plus/JSONPath) - 本地数据转换与查询。
   - [lucide-react](https://lucide.dev/) - 现代化图标包。
 
 ---

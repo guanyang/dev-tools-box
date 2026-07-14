@@ -8,6 +8,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [v1.1.0] - 2026-07-14
+
+### Added / 新增功能
+
+- 新增工具搜索、分类筛选、收藏与最近使用，偏好保存在浏览器本地。
+- 新增 UUID v4/v7、ULID 与安全随机 Token 批量生成。
+- 新增文本/文件 SHA-256、SHA-512 校验与 HMAC 计算。
+- 新增 Unix 时间戳、时区转换和 5 字段 Cron 后续时间计算。
+- 新增正则表达式匹配、捕获组和替换预览。
+- 新增 JSON/YAML 双向转换与 JSONPath 查询。
+
+### Changed / 架构调整
+
+- 将全部工具拆分为独立模块并按需加载，网页与浏览器扩展继续共用同一注册表和工具实现。
+- 浏览器扩展继续保持无 Host Permissions、无内容脚本、无后台进程。
+
+---
+
 ## [v1.0.0] - 2026-07-11
 
 ### Added / 新增功能

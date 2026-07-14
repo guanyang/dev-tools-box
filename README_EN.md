@@ -65,6 +65,7 @@ You can use this toolbox in the following two ways:
   - Built with **React 19 + TailwindCSS 4.0** with smooth transitions and interactions.
   - Supports **Dark/Light Mode** switching.
   - Integrated with **CodeMirror** for syntax highlighting and real-time validation.
+- 🔎 **Fast Tool Discovery**: Search by name or keyword, filter by category, and keep local-only favorites and recent tools.
 - 🚀 **Serverless Ready**: Native compatibility with Cloudflare Workers/Pages environments. Comes with pre-configured GitHub Actions workflows.
 
 ---
@@ -87,7 +88,7 @@ You can use this toolbox in the following two ways:
 
 ### 4. 🔑 Password Generator
 - High-entropy cryptographically random passwords.
-- Customizable parameters: length (6-64 characters) and characters sets (uppercase, lowercase, numbers, special symbols).
+- Customizable length (1-256), batch size (1-1000), and character sets.
 - Quick copy and password strength indicators.
 
 ### 5. 🧮 24 Codec Tools (Codec Engine)
@@ -105,6 +106,26 @@ You can use this toolbox in the following two ways:
 | | Gzip Decompression | Decompress Gzip-compressed Base64 string values |
 | | **Proto Hex Parser** | **Power Feature!** Parse Protobuf binary Hex string inputs directly into structured JSON trees |
 
+### 6. 🪪 ID & Token Generator
+- Batch-generate UUID v4, UUID v7, ULID, and URL-safe secure tokens.
+- Uses browser cryptographic randomness with per-item and bulk copy actions.
+
+### 7. #️⃣ Hash & Checksum
+- Calculate SHA-256 and SHA-512 for text or local files.
+- Generate HMAC values with a user-provided key without uploading data.
+
+### 8. 🕐 Time & Cron
+- Detect second or millisecond Unix timestamps and display common time zones.
+- Parse standard five-field Cron expressions and list upcoming runs.
+
+### 9. 🧪 Regex Tester
+- Preview matches, offsets, captures, named groups, and replacement output in real time.
+- Supports the `g`, `i`, `m`, `s`, and `u` flags.
+
+### 10. 🔄 JSON/YAML & JSONPath
+- Convert JSON and YAML in both directions.
+- Evaluate JSONPath expressions against JSON input and return structured results.
+
 ---
 
 ## 🛠️ Tech Stack
@@ -115,6 +136,7 @@ You can use this toolbox in the following two ways:
 - **Core Components**:
   - [@uiw/react-codemirror](https://github.com/uiwjs/react-codemirror) - Integrated professional code editor.
   - [@noble/hashes](https://github.com/paulmillr/noble-hashes) - Pure JS implementation of cryptographic hash functions.
+  - [yaml](https://eemeli.org/yaml/) / [JSONPath Plus](https://github.com/JSONPath-Plus/JSONPath) - Local data conversion and querying.
   - [lucide-react](https://lucide.dev/) - Modern icon assets.
 
 ---
