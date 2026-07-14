@@ -3,18 +3,35 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 import {
+  TOOL_CATEGORIES,
   DEFAULT_TOOL_ID,
+  filterTools,
   normalizeToolId,
   toolboxHref,
   tools,
 } from "../app/tools.ts";
 
-test("exposes the five stable tool IDs in navigation order", () => {
+test("exposes all stable tool IDs in navigation order", () => {
   assert.deepEqual(
     tools.map((tool) => tool.id),
-    ["doc-diff", "json-format", "json-diff", "password", "codec"],
+    [
+      "doc-diff",
+      "json-format",
+      "json-diff",
+      "password",
+      "codec",
+      "id-generator",
+      "hash-checksum",
+      "time-cron",
+      "regex-tester",
+      "data-converter",
+    ],
   );
   assert.equal(DEFAULT_TOOL_ID, "doc-diff");
+  assert.equal(new Set(tools.map((tool) => tool.id)).size, tools.length);
+  assert.ok(tools.every((tool) => TOOL_CATEGORIES.some((category) => category.id === tool.category)));
+  assert.ok(tools.every((tool) => tool.keywords.length > 0));
+  assert.ok(tools.every((tool) => tool.icon));
 });
 
 test("normalizes missing and unknown tool IDs to the default", () => {
@@ -26,6 +43,16 @@ test("normalizes missing and unknown tool IDs to the default", () => {
 test("builds relative toolbox URLs for Popup navigation", () => {
   assert.equal(toolboxHref(), "toolbox.html");
   assert.equal(toolboxHref("codec"), "toolbox.html?tool=codec");
+});
+
+test("filters tools by search text and category", () => {
+  assert.deepEqual(filterTools(tools, "yaml").map((tool) => tool.id), ["data-converter"]);
+  assert.deepEqual(filterTools(tools, "", "security").map((tool) => tool.id), [
+    "hash-checksum",
+  ]);
+  assert.deepEqual(filterTools(tools, "正则", "text").map((tool) => tool.id), [
+    "regex-tester",
+  ]);
 });
 
 test("extension entries use shared navigation and history replacement", async () => {

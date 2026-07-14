@@ -19,7 +19,7 @@ function extensionAssets(): Plugin {
       const manifest = {
         manifest_version: 3,
         name: "开发者工具箱",
-        description: "离线使用文档差异、JSON、密码生成和编解码工具。",
+        description: "离线使用文档差异、数据转换、正则、时间、哈希和编解码工具。",
         version: packageJson.version,
         offline_enabled: true,
         action: {
