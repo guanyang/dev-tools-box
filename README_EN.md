@@ -144,7 +144,7 @@ You can use this toolbox in the following two ways:
 ## 🛠️ Development Guide
 
 ### Prerequisites
-- **Node.js** `>=22.13.0`
+- **Node.js** `>=22.15.0`
 - **npm** `>=10.0.0`
 
 ### Local Setup
