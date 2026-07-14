@@ -144,3 +144,23 @@ test("keeps the workbench modular and free of starter preview artifacts", async 
 
   await assert.rejects(access(new URL("../app/_sites-preview", import.meta.url)));
 });
+
+test("collapsed tool rail leaves enough room for an unclipped tool icon", async () => {
+  const styles = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  const collapsedWidth = Number(styles.match(/\.app-shell\s*\{[\s\S]*?grid-template-columns:\s*(\d+)px/)?.[1]);
+  const railPadding = Number(styles.match(/\.tool-rail\s*\{[\s\S]*?padding:\s*\d+px\s+(\d+)px/)?.[1]);
+  const railBorder = Number(styles.match(/\.tool-rail\s*\{[\s\S]*?border-right:\s*(\d+)px/)?.[1]);
+  const navPadding = Number(styles.match(/\.tool-nav\s*\{[\s\S]*?padding-right:\s*(\d+)px/)?.[1]);
+  const tabPadding = Number(styles.match(/\.tool-tab\s*\{[\s\S]*?padding:\s*(\d+)px/)?.[1]);
+  const tabBorder = Number(styles.match(/\.tool-tab\s*\{[\s\S]*?border:\s*(\d+)px/)?.[1]);
+  const iconWidth = Number(styles.match(/\.tool-icon\s*\{[\s\S]*?width:\s*(\d+)px/)?.[1]);
+  const scrollbarWidth = Number(styles.match(/\.tool-nav::-webkit-scrollbar\s*\{[\s\S]*?width:\s*(\d+)px/)?.[1]);
+  const requiredWidth = railPadding * 2 + railBorder + navPadding + scrollbarWidth
+    + tabPadding * 2 + tabBorder * 2 + iconWidth;
+
+  assert.ok(
+    collapsedWidth >= requiredWidth,
+    `collapsed rail is ${collapsedWidth}px but needs at least ${requiredWidth}px`,
+  );
+  assert.match(styles, /\.tool-nav\s*\{[\s\S]*?scrollbar-width:\s*thin/);
+});

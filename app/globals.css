@@ -60,7 +60,7 @@ button:disabled {
 
 .app-shell {
   display: grid;
-  grid-template-columns: 84px minmax(0, 1fr);
+  grid-template-columns: 96px minmax(0, 1fr);
   min-height: 100vh;
   transition: grid-template-columns 180ms ease;
 }
@@ -185,6 +185,11 @@ h3 {
   min-height: 0;
   overflow-y: auto;
   padding-right: 2px;
+  scrollbar-width: thin;
+}
+
+.tool-nav::-webkit-scrollbar {
+  width: 6px;
 }
 
 .tool-nav-item {
@@ -1273,7 +1278,7 @@ textarea:focus {
 
 @media (max-width: 620px) {
   .app-shell.rail-expanded {
-    grid-template-columns: 84px minmax(0, 1fr);
+    grid-template-columns: 96px minmax(0, 1fr);
   }
 
   .rail-expanded .tool-rail {
