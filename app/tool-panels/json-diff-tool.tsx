@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { makeJsonDiff, mergeJsonPathValue, transformJson } from "../tool-logic/json";
+import { useIncomingToolValue } from "../tool-runtime";
 import { JsonEditor, JsonHighlight } from "./json-editor";
 
 const sampleJsonLeft = `{"service":"api","timeout":3000,"retries":2,"flags":{"beta":false}}`;
@@ -11,6 +12,10 @@ export default function JsonDiffTool() {
   const [jsonLeft, setJsonLeft] = useState(sampleJsonLeft);
   const [jsonRight, setJsonRight] = useState(sampleJsonRight);
   const jsonDiff = useMemo(() => makeJsonDiff(jsonLeft, jsonRight), [jsonLeft, jsonRight]);
+
+  useIncomingToolValue("json-diff", useCallback((transfer) => {
+    setJsonLeft(transfer.value);
+  }, []));
 
   function transform(input: string, setInput: (value: string) => void, space: number | undefined) {
     const result = transformJson(input, space);

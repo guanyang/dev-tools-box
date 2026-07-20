@@ -2,7 +2,9 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { DevToolsWorkbench } from "../../app/dev-tools-workbench";
+import JsonDiffTool from "../../app/tool-panels/json-diff-tool";
 import { JsonEditor } from "../../app/tool-panels/json-editor";
+import { ToolRuntimeProvider } from "../../app/tool-runtime";
 import { ThemeContext } from "../../app/workbench-preferences";
 
 beforeEach(() => {
@@ -84,5 +86,27 @@ describe("workbench keyboard and theme interactions", () => {
     await user.click(screen.getByRole("button", { name: /格式化 JSON/ }));
     expect(screen.getByRole("heading", { name: "JSON 格式化" })).toBeTruthy();
     expect(window.localStorage.getItem("dev-tools-box:recent")).not.toContain("service");
+  });
+
+  test("places transferred JSON into the left diff editor", async () => {
+    const consumeTransfer = vi.fn();
+    render(
+      <ToolRuntimeProvider value={{
+        incoming: {
+          id: "transfer-1",
+          sourceToolId: "json-format",
+          targetToolId: "json-diff",
+          value: '{"service":"transferred"}',
+          valueType: "json",
+        },
+        sendToTool: vi.fn(),
+        consumeTransfer,
+      }}>
+        <JsonDiffTool />
+      </ToolRuntimeProvider>,
+    );
+
+    await waitFor(() => expect(consumeTransfer).toHaveBeenCalledWith("transfer-1"));
+    expect(screen.getByLabelText("左侧 JSON").textContent).toContain("transferred");
   });
 });
