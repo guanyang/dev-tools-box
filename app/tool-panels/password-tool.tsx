@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { normalizeIntegerInput } from "../tool-logic/common";
-import { generatePasswords, passwordCharsets, type PasswordCharset } from "../tool-logic/password";
+import { analyzePasswordStrength, generatePasswords, passwordCharsets, type PasswordCharset } from "../tool-logic/password";
 import { CopyToast, useCopyText } from "./copy-feedback";
 
 const charsetOptions: Array<{ key: PasswordCharset; label: string; description: string }> = [
@@ -17,6 +17,7 @@ export default function PasswordTool() {
   const [passwordCount, setPasswordCount] = useState("1");
   const [enabledSets, setEnabledSets] = useState({ uppercase: true, lowercase: true, numbers: true, symbols: true });
   const [passwords, setPasswords] = useState<string[]>([]);
+  const [passwordToAnalyze, setPasswordToAnalyze] = useState("");
   const { copyStatus, copyText } = useCopyText();
   const pool = Object.entries(enabledSets)
     .filter(([, enabled]) => enabled)
@@ -66,6 +67,11 @@ export default function PasswordTool() {
           <div className="password-output"><code>点击生成按钮创建随机密码</code><button type="button" disabled>复制</button></div>
         )}
       </div>
+      <section className="subtool-card password-analysis">
+        <header><h3>密码强度分析</h3><span>仅在当前页面内存中计算，不保存输入</span></header>
+        <label className="text-control"><span>待分析密码</span><input type="password" autoComplete="off" value={passwordToAnalyze} onChange={(event) => setPasswordToAnalyze(event.target.value)} /></label>
+        {passwordToAnalyze && (() => { const result = analyzePasswordStrength(passwordToAnalyze); return <div className="strength-result"><strong>{result.label} · {result.entropyBits} bits</strong><progress max="4" value={result.score} /><span>{result.warnings.join("；") || "字符长度和组合良好"}</span></div>; })()}
+      </section>
       <CopyToast status={copyStatus} />
     </section>
   );

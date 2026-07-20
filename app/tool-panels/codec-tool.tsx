@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { codecMethods, runCodec } from "../codec";
+import { useIncomingToolValue } from "../tool-runtime";
 import { CopyToast, useCopyText } from "./copy-feedback";
+import { OutputActions } from "./output-actions";
 
 const codecGroups = [
   { id: "encode" as const, label: "编码与计算", caption: "ENCODE · 12 种" },
@@ -17,6 +19,10 @@ export default function CodecTool() {
   const [busy, setBusy] = useState(false);
   const { copyStatus, copyText } = useCopyText();
   const activeCodec = codecMethods.find((method) => method.id === methodId) ?? codecMethods[0];
+  useIncomingToolValue("codec", useCallback((transfer) => {
+    setInput(transfer.value);
+    setMethodId(transfer.valueType === "base64" ? "base64-decode" : transfer.valueType === "url" ? "url-params" : "base64-encode");
+  }, []));
 
   async function executeCodec() {
     setBusy(true);
@@ -59,6 +65,7 @@ export default function CodecTool() {
         <label className="editor-block"><span>输入内容</span><textarea aria-label="编解码输入内容" value={input} onChange={(event) => setInput(event.target.value)} /></label>
         <label className="editor-block"><span>转换结果</span><textarea aria-label="编解码转换结果" readOnly value={output} placeholder="执行转换后在这里查看结果" /></label>
       </div>
+      <OutputActions sourceToolId="codec" value={output} valueType={methodId === "base64-encode" ? "base64" : "text"} filename="codec-output.txt" />
       <CopyToast status={copyStatus} />
     </section>
   );

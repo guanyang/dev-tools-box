@@ -74,4 +74,15 @@ describe("workbench keyboard and theme interactions", () => {
     const { container } = render(<ThemeContext.Provider value="dark"><JsonEditor label="JSON" value="{}" onChange={() => {}} /></ThemeContext.Provider>);
     expect(container.querySelector(".cm-theme-dark")).toBeTruthy();
   });
+
+  test("detects explicitly pasted JSON and opens the recommended tool", async () => {
+    const user = userEvent.setup();
+    render(<DevToolsWorkbench />);
+    await user.click(screen.getByRole("button", { name: /智能识别/ }));
+    const input = screen.getByPlaceholderText("在这里粘贴 JSON、YAML、JWT、URL 等内容");
+    fireEvent.paste(input, { clipboardData: { getData: () => '{"service":"api"}' } });
+    await user.click(screen.getByRole("button", { name: /格式化 JSON/ }));
+    expect(screen.getByRole("heading", { name: "JSON 格式化" })).toBeTruthy();
+    expect(window.localStorage.getItem("dev-tools-box:recent")).not.toContain("service");
+  });
 });

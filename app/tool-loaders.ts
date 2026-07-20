@@ -14,6 +14,8 @@ export const toolImports: Record<ToolId, () => Promise<ToolModule>> = {
   "time-cron": () => import("./tool-panels/time-cron-tool"),
   "regex-tester": () => import("./tool-panels/regex-tester-tool"),
   "data-converter": () => import("./tool-panels/data-converter-tool"),
+  "jwt-inspector": () => import("./tool-panels/jwt-inspector-tool"),
+  "qr-generator": () => import("./tool-panels/qr-generator-tool"),
 };
 
 export const toolLoaders = Object.fromEntries(

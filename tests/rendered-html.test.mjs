@@ -100,7 +100,7 @@ test("keeps the workbench modular and free of starter preview artifacts", async 
   assert.match(workbench, /rail-expanded/);
   assert.match(workbench, /FileDiff/);
   assert.match(workbench, /GitCompareArrows/);
-  assert.equal((loaders.match(/=> import\(/g) ?? []).length, 10);
+  assert.equal((loaders.match(/=> import\(/g) ?? []).length, 12);
   assert.match(docDiffTool, /mergeTextLine/);
   assert.match(docDiffLogic, /function makeTextDiff/);
   assert.match(jsonDiffTool, /mergeJsonPathValue/);

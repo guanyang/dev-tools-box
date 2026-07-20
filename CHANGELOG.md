@@ -8,6 +8,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [v1.3.0] - 2026-07-20
+
+### Added / 新增功能
+
+- 新增用户主动触发的智能内容识别，支持粘贴、拖放和选择文件，并设置 1 MB / 40 ms 安全预算。
+- 新增内存态跨工具流转和统一复制、下载、发送动作，支持 JSON → YAML → Base64 → QR Code 链路。
+- 新增 QR Code 生成、JWT/JWK 本地签名校验、声明时间检查和密码强度分析。
+- JSON 格式化与结构化数据转换迁移到 Web Worker，支持进度提示和任务取消。
+
+### Changed / 架构调整
+
+- 工具注册表新增输入输出类型、敏感标记、最大输入和执行方式元数据。
+- 跨工具内容不写入 `localStorage`，JWT、JWK 和密码输入不进入历史或 URL。
+- Web 与 Chrome、Edge、Firefox 扩展继续共享同一工具注册表、运行时和计算逻辑，基础扩展保持零权限。
+
 ## [v1.2.0] - 2026-07-20
 
 ### Added / 新增功能

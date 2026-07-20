@@ -1,4 +1,4 @@
-const CACHE_NAME = "dev-tools-box-v1.2.0";
+const CACHE_NAME = "dev-tools-box-v1.3.0";
 const APP_SHELL = ["/", "/manifest.webmanifest", "/favicon.svg"];
 
 self.addEventListener("install", (event) => {

@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import { transformJson } from "../tool-logic/json";
-import { CopyToast, useCopyText } from "./copy-feedback";
+import { useCallback, useRef, useState } from "react";
+import { useIncomingToolValue } from "../tool-runtime";
+import { runWorkerTask, shouldUseWorker } from "../worker-client";
 import { JsonEditor, JsonHighlight } from "./json-editor";
+import { OutputActions } from "./output-actions";
 
 const sampleJson = `{"name":"devkit","features":["format","diff","password"],"active":true}`;
 
@@ -11,25 +12,35 @@ export default function JsonFormatTool() {
   const [jsonInput, setJsonInput] = useState(sampleJson);
   const [formattedJson, setFormattedJson] = useState("");
   const [jsonError, setJsonError] = useState("");
-  const { copyStatus, copyText } = useCopyText();
+  const [busy, setBusy] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const controller = useRef<AbortController | null>(null);
+  useIncomingToolValue("json-format", useCallback((transfer) => setJsonInput(transfer.value), []));
 
-  function transform(space: number | undefined) {
-    const result = transformJson(jsonInput, space);
-    if (result.error) {
-      setJsonError(result.error);
+  async function transform(space: number | undefined) {
+    controller.current?.abort();
+    controller.current = new AbortController();
+    setBusy(true);
+    setProgress(0);
+    try {
+      setFormattedJson(await runWorkerTask({ type: "json-transform", input: jsonInput, space }, { signal: controller.current.signal, onProgress: setProgress }));
+      setJsonError("");
+    } catch (caught) {
+      if (caught instanceof DOMException && caught.name === "AbortError") return;
+      setJsonError(caught instanceof Error ? caught.message : "JSON 处理失败");
       setFormattedJson("");
-      return;
+    } finally {
+      setBusy(false);
     }
-    setJsonError("");
-    setFormattedJson(result.value as string);
   }
 
   return (
     <section className="tool-panel">
       <div className="action-bar">
-        <button type="button" onClick={() => transform(2)}>格式化</button>
-        <button type="button" onClick={() => transform(undefined)}>压缩</button>
-        <button type="button" onClick={() => copyText(formattedJson)}>复制结果</button>
+        <button type="button" disabled={busy} onClick={() => void transform(2)}>格式化</button>
+        <button type="button" disabled={busy} onClick={() => void transform(undefined)}>压缩</button>
+        {busy && <button type="button" onClick={() => controller.current?.abort()}>取消任务</button>}
+        <span className="task-status">{busy ? `Worker 处理中 ${progress}%` : shouldUseWorker(jsonInput) ? "大输入将由 Worker 处理" : ""}</span>
       </div>
       <div className="editor-grid">
         <div className="editor-block">
@@ -47,7 +58,7 @@ export default function JsonFormatTool() {
           )}
         </div>
       </div>
-      <CopyToast status={copyStatus} />
+      <OutputActions sourceToolId="json-format" value={formattedJson} valueType="json" filename="formatted.json" />
     </section>
   );
 }

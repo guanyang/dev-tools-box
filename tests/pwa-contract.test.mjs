@@ -11,7 +11,7 @@ test("web app exposes an installable standalone manifest", async () => {
 
 test("service worker owns a versioned cache and supports updates", async () => {
   const source = await readFile(new URL("../public/sw.js", import.meta.url), "utf8");
-  assert.match(source, /dev-tools-box-v1\.2\.0/);
+  assert.match(source, /dev-tools-box-v1\.3\.0/);
   assert.match(source, /skipWaiting/);
   assert.match(source, /clients\.claim/);
   assert.match(source, /CACHE_URLS/);

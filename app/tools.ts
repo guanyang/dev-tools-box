@@ -9,6 +9,8 @@ export const TOOL_IDS = [
   "time-cron",
   "regex-tester",
   "data-converter",
+  "jwt-inspector",
+  "qr-generator",
 ] as const;
 
 export type ToolId = (typeof TOOL_IDS)[number];
@@ -34,7 +36,11 @@ export type ToolIconName =
   | "hash"
   | "calendar-clock"
   | "regex"
-  | "refresh";
+  | "refresh"
+  | "shield-check"
+  | "qr-code";
+
+export type ToolValueType = "text" | "json" | "yaml" | "xml" | "toml" | "csv" | "url" | "base64" | "jwt" | "image";
 
 export type ToolDefinition = {
   id: ToolId;
@@ -43,6 +49,11 @@ export type ToolDefinition = {
   category: ToolCategory;
   keywords: readonly string[];
   icon: ToolIconName;
+  accepts: readonly ToolValueType[];
+  produces: readonly ToolValueType[];
+  maxInputBytes: number;
+  execution: "sync" | "worker";
+  sensitive?: boolean;
 };
 
 export const DEFAULT_TOOL_ID: ToolId = "doc-diff";
@@ -55,6 +66,7 @@ export const tools: ToolDefinition[] = [
     category: "text",
     keywords: ["diff", "compare", "text", "文档", "文本"],
     icon: "file-diff",
+    accepts: ["text"], produces: ["text"], maxInputBytes: 1_000_000, execution: "sync",
   },
   {
     id: "json-format",
@@ -63,6 +75,7 @@ export const tools: ToolDefinition[] = [
     category: "data",
     keywords: ["json", "format", "minify", "格式化", "压缩"],
     icon: "braces",
+    accepts: ["json", "text"], produces: ["json"], maxInputBytes: 5_000_000, execution: "worker",
   },
   {
     id: "json-diff",
@@ -71,6 +84,7 @@ export const tools: ToolDefinition[] = [
     category: "data",
     keywords: ["json", "diff", "compare", "合并", "差异"],
     icon: "git-compare",
+    accepts: ["json"], produces: ["json"], maxInputBytes: 2_000_000, execution: "sync",
   },
   {
     id: "password",
@@ -79,6 +93,7 @@ export const tools: ToolDefinition[] = [
     category: "generate",
     keywords: ["password", "random", "密码", "随机"],
     icon: "key",
+    accepts: ["text"], produces: ["text"], maxInputBytes: 4096, execution: "sync", sensitive: true,
   },
   {
     id: "codec",
@@ -87,6 +102,7 @@ export const tools: ToolDefinition[] = [
     category: "data",
     keywords: ["base64", "url", "jwt", "gzip", "encode", "decode", "编解码"],
     icon: "binary",
+    accepts: ["text", "json", "yaml", "xml", "toml", "csv", "url", "base64", "jwt"], produces: ["text", "json", "base64"], maxInputBytes: 5_000_000, execution: "sync",
   },
   {
     id: "id-generator",
@@ -95,6 +111,7 @@ export const tools: ToolDefinition[] = [
     category: "generate",
     keywords: ["uuid", "ulid", "token", "id", "标识符"],
     icon: "fingerprint",
+    accepts: ["text"], produces: ["text"], maxInputBytes: 4096, execution: "sync", sensitive: true,
   },
   {
     id: "hash-checksum",
@@ -103,6 +120,7 @@ export const tools: ToolDefinition[] = [
     category: "security",
     keywords: ["hash", "sha256", "sha512", "hmac", "checksum", "文件校验"],
     icon: "hash",
+    accepts: ["text"], produces: ["text"], maxInputBytes: 20_000_000, execution: "worker", sensitive: true,
   },
   {
     id: "time-cron",
@@ -111,6 +129,7 @@ export const tools: ToolDefinition[] = [
     category: "time",
     keywords: ["timestamp", "timezone", "cron", "unix", "时间戳", "时区"],
     icon: "calendar-clock",
+    accepts: ["text"], produces: ["text"], maxInputBytes: 100_000, execution: "sync",
   },
   {
     id: "regex-tester",
@@ -119,6 +138,7 @@ export const tools: ToolDefinition[] = [
     category: "text",
     keywords: ["regex", "regexp", "replace", "match", "正则", "替换"],
     icon: "regex",
+    accepts: ["text"], produces: ["text"], maxInputBytes: 2_000_000, execution: "sync",
   },
   {
     id: "data-converter",
@@ -127,6 +147,25 @@ export const tools: ToolDefinition[] = [
     category: "data",
     keywords: ["json", "yaml", "xml", "toml", "csv", "sql", "schema", "jsonpath", "转换", "查询"],
     icon: "refresh",
+    accepts: ["json", "yaml", "xml", "toml", "csv", "text"], produces: ["json", "yaml", "xml", "toml", "csv"], maxInputBytes: 5_000_000, execution: "worker",
+  },
+  {
+    id: "jwt-inspector",
+    label: "JWT / JWK 校验",
+    description: "解析 JWT 声明并使用 JWK 在本地校验签名。",
+    category: "security",
+    keywords: ["jwt", "jwk", "signature", "token", "签名", "校验"],
+    icon: "shield-check",
+    accepts: ["jwt", "text"], produces: ["json", "text"], maxInputBytes: 100_000, execution: "sync", sensitive: true,
+  },
+  {
+    id: "qr-generator",
+    label: "QR Code 生成",
+    description: "将文本、URL 或转换结果生成为本地 QR 图片。",
+    category: "generate",
+    keywords: ["qr", "qrcode", "二维码", "url", "wifi"],
+    icon: "qr-code",
+    accepts: ["text", "url", "base64", "json", "yaml"], produces: ["image"], maxInputBytes: 4096, execution: "sync",
   },
 ];
 
@@ -156,4 +195,8 @@ export function filterTools(
 
 export function toolboxHref(toolId?: ToolId): string {
   return toolId ? `toolbox.html?tool=${encodeURIComponent(toolId)}` : "toolbox.html";
+}
+
+export function getCompatibleTargets(sourceToolId: ToolId, valueType: ToolValueType): ToolDefinition[] {
+  return tools.filter((tool) => tool.id !== sourceToolId && tool.accepts.includes(valueType));
 }

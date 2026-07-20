@@ -25,6 +25,8 @@ test("exposes all stable tool IDs in navigation order", () => {
       "time-cron",
       "regex-tester",
       "data-converter",
+      "jwt-inspector",
+      "qr-generator",
     ],
   );
   assert.equal(DEFAULT_TOOL_ID, "doc-diff");
@@ -49,6 +51,7 @@ test("filters tools by search text and category", () => {
   assert.deepEqual(filterTools(tools, "yaml").map((tool) => tool.id), ["data-converter"]);
   assert.deepEqual(filterTools(tools, "", "security").map((tool) => tool.id), [
     "hash-checksum",
+    "jwt-inspector",
   ]);
   assert.deepEqual(filterTools(tools, "正则", "text").map((tool) => tool.id), [
     "regex-tester",

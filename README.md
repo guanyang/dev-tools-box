@@ -52,6 +52,8 @@
   - 集成专业级 **CodeMirror** 编辑器，支持语法高亮和实时错误校验。
 - 🔎 **快速发现工具**：支持按名称或关键词搜索、分类筛选、收藏和最近使用；偏好仅保存在浏览器本地。
 - ⌨️ **键盘优先**：按 `Cmd/Ctrl + K` 打开命令面板，使用方向键与 Enter 快速切换工具。
+- 🧠 **智能识别与跨工具流转**：仅在用户主动粘贴、拖放或选择文件后识别内容；统一复制、下载和“发送到”，可组合 JSON → YAML → Base64 → QR Code。
+- 🧵 **大输入不卡界面**：JSON 与结构化数据重计算在 Web Worker 中执行，支持进度、取消和输入大小提示。
 - 📲 **可安装网页应用**：在线版支持安装为 PWA，并在空闲时缓存核心工具，后续可离线打开。
 - 🚀 **零配置部署 (Serverless Friendly)**：原生适配 Cloudflare Workers/Pages 边缘运行环境，预置 GitHub Actions 持续集成工作流。
 
@@ -129,6 +131,15 @@
 - 对 JSON 输入执行 JSONPath 查询，并使用 JSON Schema 本地校验数据。
 - 格式化 Standard SQL、MySQL、PostgreSQL、SQLite、SQL Server 与 PL/SQL。
 
+### 11. 🛡️ JWT / JWK 校验
+- 解析 JWT Header、Payload 和时间声明，并明确提示过期、未生效或不安全算法。
+- 使用浏览器 Web Crypto 和 JWK 在本地验证 HMAC、RSA、RSA-PSS 与 ECDSA 签名。
+- Token 与密钥仅保留在当前页面内存，不写入历史或 URL。
+
+### 12. ▦ QR Code 生成
+- 将文本、URL、Base64 或上一步工具输出生成为本地 PNG QR Code。
+- 支持复制、下载，并作为 JSON → YAML → Base64 工作流的终点。
+
 ---
 
 ## 🛠️ 技术栈 (Tech Stack)
@@ -139,7 +150,8 @@
 - **核心组件**:
   - [@uiw/react-codemirror](https://github.com/uiwjs/react-codemirror) - 集成专业代码编辑。
   - [@noble/hashes](https://github.com/paulmillr/noble-hashes) - 纯 JS 实现的加密哈希库.
-  - [yaml](https://eemeli.org/yaml/) / [JSONPath Plus](https://github.com/JSONPath-Plus/JSONPath) / [Ajv](https://ajv.js.org/) - 本地数据转换、查询与 Schema 校验。
+  - [yaml](https://eemeli.org/yaml/) / [JSONPath Plus](https://github.com/JSONPath-Plus/JSONPath) / [@cfworker/json-schema](https://github.com/cfworker/cfworker/tree/main/packages/json-schema) - 本地数据转换、查询与 CSP 安全的 Schema 校验。
+  - [qrcode](https://github.com/soldair/node-qrcode) - 浏览器内 QR Code 生成。
   - [lucide-react](https://lucide.dev/) - 现代化图标包。
 
 ---
