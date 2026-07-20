@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { normalizeIntegerInput } from "../tool-logic/common";
 import { generateToken, generateUlid, generateUuidV4, generateUuidV7 } from "../tool-logic/id";
-import { CopyToast, useCopyText } from "./shared";
+import { CopyToast, useCopyText } from "./copy-feedback";
 
 type IdKind = "uuid-v4" | "uuid-v7" | "ulid" | "token";
 

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { normalizeIntegerInput } from "../tool-logic/common";
 import { generatePasswords, passwordCharsets, type PasswordCharset } from "../tool-logic/password";
-import { CopyToast, useCopyText } from "./shared";
+import { CopyToast, useCopyText } from "./copy-feedback";
 
 const charsetOptions: Array<{ key: PasswordCharset; label: string; description: string }> = [
   { key: "uppercase", label: "大写字母", description: "A-Z" },

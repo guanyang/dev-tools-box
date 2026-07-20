@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { codecMethods, runCodec } from "../codec";
-import { CopyToast, useCopyText } from "./shared";
+import { CopyToast, useCopyText } from "./copy-feedback";
 
 const codecGroups = [
   { id: "encode" as const, label: "编码与计算", caption: "ENCODE · 12 种" },

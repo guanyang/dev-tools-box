@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { hashBlob, hashText, hmacText, type HashAlgorithm } from "../tool-logic/hash";
-import { CopyToast, useCopyText } from "./shared";
+import { CopyToast, useCopyText } from "./copy-feedback";
 
 type HashMode = "text" | "file" | "hmac";
 

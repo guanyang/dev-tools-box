@@ -8,6 +8,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [v1.2.0] - 2026-07-20
+
+### Added / 新增功能
+
+- 新增 PWA 安装清单、版本化离线缓存、后台预缓存与新版本更新提示。
+- 新增 `Cmd/Ctrl + K` 命令面板，支持搜索、键盘选择与快速打开工具。
+- 新增 system/light/dark 三态主题偏好，并保存在浏览器本地。
+- 数据工作台新增 XML、TOML、CSV 转换、JSON Schema 校验和多方言 SQL 格式化。
+- 新增真实 DOM 交互测试，以及 Popup、工具箱首屏和动态工具块的 gzip 体积预算。
+
+### Changed / 架构调整
+
+- TypeScript 编译目标升级至 ES2022，并将类型检查纳入完整测试流程。
+- 将复制反馈与 CodeMirror/Prism 编辑器模块拆分，避免轻量工具加载重型编辑器依赖。
+- 浏览器扩展构建产出 bundle manifest，并在打包前执行体积闸门。
+
+---
+
 ## [v1.1.0] - 2026-07-14
 
 ### Added / 新增功能
