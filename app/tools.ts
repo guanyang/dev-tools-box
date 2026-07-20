@@ -122,10 +122,10 @@ export const tools: ToolDefinition[] = [
   },
   {
     id: "data-converter",
-    label: "JSON/YAML 与 JSONPath",
-    description: "在 JSON 与 YAML 间转换，并查询 JSONPath。",
+    label: "结构化数据工作台",
+    description: "转换 JSON、YAML、XML、TOML、CSV，校验 Schema 并格式化 SQL。",
     category: "data",
-    keywords: ["json", "yaml", "jsonpath", "convert", "query", "转换", "查询"],
+    keywords: ["json", "yaml", "xml", "toml", "csv", "sql", "schema", "jsonpath", "转换", "查询"],
     icon: "refresh",
   },
 ];

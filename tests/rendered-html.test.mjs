@@ -39,7 +39,7 @@ test("server-renders the developer tools workbench", async () => {
   assert.match(html, /哈希与文件校验/);
   assert.match(html, /时间与 Cron/);
   assert.match(html, /正则表达式测试/);
-  assert.match(html, /JSON\/YAML 与 JSONPath/);
+  assert.match(html, /结构化数据工作台/);
   assert.match(html, /全部用左侧/);
   assert.match(html, /全部用右侧/);
   assert.match(html, /左合右/);
@@ -57,7 +57,8 @@ test("keeps the workbench modular and free of starter preview artifacts", async 
     jsonDiffTool,
     passwordTool,
     codecTool,
-    shared,
+    copyFeedback,
+    jsonEditor,
     commonLogic,
     docDiffLogic,
     jsonLogic,
@@ -74,7 +75,8 @@ test("keeps the workbench modular and free of starter preview artifacts", async 
     readFile(new URL("../app/tool-panels/json-diff-tool.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/tool-panels/password-tool.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/tool-panels/codec-tool.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/tool-panels/shared.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/tool-panels/copy-feedback.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/tool-panels/json-editor.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/tool-logic/common.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/tool-logic/doc-diff.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/tool-logic/json.ts", import.meta.url), "utf8"),
@@ -98,16 +100,17 @@ test("keeps the workbench modular and free of starter preview artifacts", async 
   assert.match(workbench, /rail-expanded/);
   assert.match(workbench, /FileDiff/);
   assert.match(workbench, /GitCompareArrows/);
-  assert.equal((loaders.match(/lazy\(\(\) => import/g) ?? []).length, 10);
+  assert.equal((loaders.match(/=> import\(/g) ?? []).length, 10);
   assert.match(docDiffTool, /mergeTextLine/);
   assert.match(docDiffLogic, /function makeTextDiff/);
   assert.match(jsonDiffTool, /mergeJsonPathValue/);
   assert.match(jsonLogic, /function makeJsonDiff/);
-  assert.match(shared, /function JsonHighlight/);
-  assert.match(shared, /function JsonEditor/);
-  assert.match(shared, /@uiw\/react-codemirror/);
-  assert.match(shared, /@codemirror\/lang-json/);
-  assert.match(shared, /prism-react-renderer/);
+  assert.match(copyFeedback, /function useCopyText/);
+  assert.match(jsonEditor, /function JsonHighlight/);
+  assert.match(jsonEditor, /function JsonEditor/);
+  assert.match(jsonEditor, /@uiw\/react-codemirror/);
+  assert.match(jsonEditor, /@codemirror\/lang-json/);
+  assert.match(jsonEditor, /prism-react-renderer/);
   assert.match(passwordTool, /passwordCount, setPasswordCount/);
   assert.match(commonLogic, /function normalizeIntegerInput/);
   assert.match(passwordLogic, /function generatePasswords/);
@@ -130,9 +133,9 @@ test("keeps the workbench modular and free of starter preview artifacts", async 
   assert.match(codec, /case "proto-hex"/);
   assert.match(passwordTool, /setPasswordLength\(event\.target\.value\)/);
   assert.match(passwordTool, /setPasswordCount\(event\.target\.value\)/);
-  assert.match(shared, /copy-toast visible/);
-  assert.match(shared, /copyTimerRef/);
-  assert.doesNotMatch(shared, /\{copyStatus &&/);
+  assert.match(copyFeedback, /copy-toast visible/);
+  assert.match(copyFeedback, /copyTimerRef/);
+  assert.doesNotMatch(copyFeedback, /\{copyStatus &&/);
   assert.match(styles, /\.editor-block > span/);
   assert.match(styles, /user-select: text/);
   assert.match(styles, /cm-selectionBackground/);

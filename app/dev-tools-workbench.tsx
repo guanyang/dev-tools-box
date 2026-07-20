@@ -10,9 +10,13 @@ import {
   GitCompareArrows,
   Hash,
   KeyRound,
+  Keyboard,
+  Monitor,
+  Moon,
   RefreshCw,
   Regex,
   Search,
+  Sun,
   Star,
   type LucideIcon,
 } from "lucide-react";
@@ -28,9 +32,11 @@ import {
   type ToolIconName,
   type ToolId,
 } from "./tools";
+import { isCommandPaletteShortcut, resolveTheme, ThemeContext, type ResolvedTheme, type ThemePreference } from "./workbench-preferences";
 
 const FAVORITES_KEY = "dev-tools-box:favorites";
 const RECENT_KEY = "dev-tools-box:recent";
+const THEME_KEY = "dev-tools-box:theme";
 
 const toolIcons: Record<ToolIconName, LucideIcon> = {
   "file-diff": FileDiff,
@@ -59,6 +65,12 @@ function storeToolIds(key: string, values: ToolId[]) {
   window.localStorage.setItem(key, JSON.stringify(values));
 }
 
+function readTheme(): ThemePreference {
+  if (typeof window === "undefined") return "system";
+  const value = window.localStorage.getItem(THEME_KEY);
+  return value === "light" || value === "dark" ? value : "system";
+}
+
 export type DevToolsWorkbenchProps = {
   initialTool?: string | null;
   onToolChange?: (toolId: ToolId) => void;
@@ -75,6 +87,11 @@ export function DevToolsWorkbench({
   const [category, setCategory] = useState<ToolCategoryFilter>("all");
   const [favoritesOnly, setFavoritesOnly] = useState(false);
   const [favorites, setFavorites] = useState<ToolId[]>(() => readToolIds(FAVORITES_KEY));
+  const [theme, setTheme] = useState<ThemePreference>(readTheme);
+  const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>("light");
+  const [isCommandOpen, setIsCommandOpen] = useState(false);
+  const [commandQuery, setCommandQuery] = useState("");
+  const [commandIndex, setCommandIndex] = useState(0);
   const [recentTools, setRecentTools] = useState<ToolId[]>(() => [
     normalizedInitialTool,
     ...readToolIds(RECENT_KEY).filter((id) => id !== normalizedInitialTool),
@@ -83,6 +100,32 @@ export function DevToolsWorkbench({
   useEffect(() => {
     storeToolIds(RECENT_KEY, recentTools);
   }, [recentTools]);
+
+  useEffect(() => {
+    const media = window.matchMedia("(prefers-color-scheme: dark)");
+    const applyTheme = () => {
+      const nextTheme = resolveTheme(theme, media.matches);
+      document.documentElement.dataset.theme = nextTheme;
+      setResolvedTheme(nextTheme);
+      window.localStorage.setItem(THEME_KEY, theme);
+    };
+    applyTheme();
+    media.addEventListener("change", applyTheme);
+    return () => media.removeEventListener("change", applyTheme);
+  }, [theme]);
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (isCommandPaletteShortcut(event)) {
+        event.preventDefault();
+        setIsCommandOpen((open) => !open);
+      } else if (event.key === "Escape") {
+        setIsCommandOpen(false);
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
 
   const visibleTools = useMemo(() => {
     const matched = filterTools(tools, query, category);
@@ -93,6 +136,7 @@ export function DevToolsWorkbench({
     .filter((tool) => tool !== undefined);
   const ActiveTool = toolLoaders[activeTool];
   const activeDefinition = tools.find((tool) => tool.id === activeTool) ?? tools[0];
+  const commandTools = filterTools(tools, commandQuery);
 
   function selectTool(toolId: ToolId) {
     setActiveTool(toolId);
@@ -100,6 +144,12 @@ export function DevToolsWorkbench({
       return [toolId, ...current.filter((id) => id !== toolId)].slice(0, 5);
     });
     onToolChange?.(toolId);
+    setIsCommandOpen(false);
+    setCommandQuery("");
+  }
+
+  function cycleTheme() {
+    setTheme((current) => current === "system" ? "light" : current === "light" ? "dark" : "system");
   }
 
   function toggleFavorite(toolId: ToolId) {
@@ -113,6 +163,7 @@ export function DevToolsWorkbench({
   }
 
   return (
+    <ThemeContext.Provider value={resolvedTheme}>
     <main className={isRailExpanded ? "app-shell rail-expanded" : "app-shell"}>
       <aside className="tool-rail" aria-label="开发者工具">
         <div className="brand-block">
@@ -163,12 +214,38 @@ export function DevToolsWorkbench({
       <section className="workspace">
         <header className="workspace-header">
           <div><p className="eyebrow">Browser-only utility suite · {TOOL_CATEGORIES.find((item) => item.id === activeDefinition.category)?.label}</p><h2>{activeDefinition.label}</h2></div>
-          <div className="status-pills"><span>离线可用</span><span>无上传</span></div>
+          <div className="workspace-actions">
+            <button type="button" className="header-action" onClick={() => setIsCommandOpen(true)} title="搜索工具（⌘/Ctrl K）"><Keyboard aria-hidden="true" size={17} /><span>搜索工具</span><kbd>⌘K</kbd></button>
+            <button type="button" className="header-action theme-action" onClick={cycleTheme} aria-label={`当前主题：${theme}，点击切换`} title={`主题：${theme}`}>
+              {theme === "system" ? <Monitor aria-hidden="true" size={17} /> : theme === "dark" ? <Moon aria-hidden="true" size={17} /> : <Sun aria-hidden="true" size={17} />}
+            </button>
+            <div className="status-pills"><span>离线可用</span><span>无上传</span></div>
+          </div>
         </header>
         <Suspense fallback={<div className="tool-loading" role="status">正在加载工具…</div>}>
           <ActiveTool />
         </Suspense>
       </section>
     </main>
+    {isCommandOpen && (
+      <div className="command-backdrop" role="presentation" onMouseDown={() => setIsCommandOpen(false)}>
+        <section className="command-palette" role="dialog" aria-modal="true" aria-label="搜索工具" onMouseDown={(event) => event.stopPropagation()}>
+          <label className="command-search"><Search aria-hidden="true" size={19} /><input autoFocus type="search" placeholder="输入工具名、用途或关键词" value={commandQuery} onChange={(event) => { setCommandQuery(event.target.value); setCommandIndex(0); }} onKeyDown={(event) => {
+            if (event.key === "ArrowDown") { event.preventDefault(); setCommandIndex((index) => Math.min(index + 1, commandTools.length - 1)); }
+            if (event.key === "ArrowUp") { event.preventDefault(); setCommandIndex((index) => Math.max(index - 1, 0)); }
+            if (event.key === "Enter" && commandTools[commandIndex]) { event.preventDefault(); selectTool(commandTools[commandIndex].id); }
+          }} /></label>
+          <div className="command-results" role="listbox">
+            {commandTools.map((tool, index) => {
+              const ToolIcon = toolIcons[tool.icon];
+              return <button type="button" role="option" aria-selected={index === commandIndex} className={index === commandIndex ? "selected" : ""} key={tool.id} onMouseEnter={() => setCommandIndex(index)} onClick={() => selectTool(tool.id)}><ToolIcon aria-hidden="true" size={20} /><span><strong>{tool.label}</strong><small>{tool.description}</small></span></button>;
+            })}
+            {commandTools.length === 0 && <p className="command-empty">没有匹配的工具</p>}
+          </div>
+          <footer><span>↑↓ 选择</span><span>Enter 打开</span><span>Esc 关闭</span></footer>
+        </section>
+      </div>
+    )}
+    </ThemeContext.Provider>
   );
 }

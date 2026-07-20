@@ -51,6 +51,8 @@
   - 支持 **明暗主题 (Dark/Light Mode)** 切换。
   - 集成专业级 **CodeMirror** 编辑器，支持语法高亮和实时错误校验。
 - 🔎 **快速发现工具**：支持按名称或关键词搜索、分类筛选、收藏和最近使用；偏好仅保存在浏览器本地。
+- ⌨️ **键盘优先**：按 `Cmd/Ctrl + K` 打开命令面板，使用方向键与 Enter 快速切换工具。
+- 📲 **可安装网页应用**：在线版支持安装为 PWA，并在空闲时缓存核心工具，后续可离线打开。
 - 🚀 **零配置部署 (Serverless Friendly)**：原生适配 Cloudflare Workers/Pages 边缘运行环境，预置 GitHub Actions 持续集成工作流。
 
 ---
@@ -122,9 +124,10 @@
 - 实时展示匹配位置、捕获组、命名组和替换预览。
 - 支持 `g`、`i`、`m`、`s`、`u` Flags。
 
-### 10. 🔄 JSON/YAML 与 JSONPath (Data Converter)
-- JSON 与 YAML 双向转换。
-- 对 JSON 输入执行 JSONPath 查询并输出结构化结果。
+### 10. 🔄 结构化数据工作台 (Structured Data Workbench)
+- 在 JSON、YAML、XML、TOML 和 CSV 之间转换。
+- 对 JSON 输入执行 JSONPath 查询，并使用 JSON Schema 本地校验数据。
+- 格式化 Standard SQL、MySQL、PostgreSQL、SQLite、SQL Server 与 PL/SQL。
 
 ---
 
@@ -136,7 +139,7 @@
 - **核心组件**:
   - [@uiw/react-codemirror](https://github.com/uiwjs/react-codemirror) - 集成专业代码编辑。
   - [@noble/hashes](https://github.com/paulmillr/noble-hashes) - 纯 JS 实现的加密哈希库.
-  - [yaml](https://eemeli.org/yaml/) / [JSONPath Plus](https://github.com/JSONPath-Plus/JSONPath) - 本地数据转换与查询。
+  - [yaml](https://eemeli.org/yaml/) / [JSONPath Plus](https://github.com/JSONPath-Plus/JSONPath) / [Ajv](https://ajv.js.org/) - 本地数据转换、查询与 Schema 校验。
   - [lucide-react](https://lucide.dev/) - 现代化图标包。
 
 ---

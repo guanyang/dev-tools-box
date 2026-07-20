@@ -64,6 +64,7 @@ export default defineConfig({
   plugins: [react(), extensionAssets()],
   build: {
     emptyOutDir: true,
+    manifest: "bundle-manifest.json",
     outDir: resolve(`dist-extension/${browser}`),
     rollupOptions: {
       input: {

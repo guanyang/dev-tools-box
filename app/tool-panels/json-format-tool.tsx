@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { transformJson } from "../tool-logic/json";
-import { CopyToast, JsonEditor, JsonHighlight, useCopyText } from "./shared";
+import { CopyToast, useCopyText } from "./copy-feedback";
+import { JsonEditor, JsonHighlight } from "./json-editor";
 
 const sampleJson = `{"name":"devkit","features":["format","diff","password"],"active":true}`;
 

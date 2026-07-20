@@ -39,6 +39,24 @@
 
 ---
 
+## ✨ Key Features
+
+- 🔒 **100% Privacy-Focused**: All document diffing, JSON formatting, password generation, and data encoding/decoding are executed entirely in the **local browser (Client-Side)**. No data is sent to external servers, protecting your API keys, JWT tokens, and credentials.
+- 🧩 **Privacy-First Browser Extension**:
+  - **Zero High-Risk Permissions**: The extension does not request any host permissions (`Host Permissions`). It **does not read, sniff, or modify any page content** you visit, avoiding plugin hijacking or keylogger risks.
+  - **100% Offline Package**: Packed with all computation logic and static resources. No network requests, no uploads.
+  - **Cross-Browser Support**: A single codebase natively compatible with Chrome, Edge, and Firefox.
+- 🎨 **Sleek UI/UX**:
+  - Built with **React 19 + TailwindCSS 4.0** with smooth transitions and interactions.
+  - Supports **System/Light/Dark** three-state theme preferences, saved locally in your browser.
+  - Integrated with **CodeMirror** for syntax highlighting and real-time validation.
+- 🔎 **Fast Tool Discovery**: Search by name or keyword, filter by category, and keep local-only favorites and recent tools.
+- ⌨️ **Keyboard First**: Press `Cmd/Ctrl + K` to open the command palette, using arrow keys and Enter to search and switch tools instantly.
+- 📲 **Installable Web App (PWA)**: The web version supports being installed as a PWA, caching core tools in the background so you can use them offline.
+- 🚀 **Serverless Ready (Serverless Friendly)**: Native compatibility with Cloudflare Workers/Pages environments. Comes with pre-configured GitHub Actions workflows.
+
+---
+
 ## 🚀 Quick Access
 
 You can use this toolbox in the following two ways:
@@ -51,22 +69,6 @@ You can use this toolbox in the following two ways:
    - Runs as a local offline bundle for enhanced security and speed.
    - Built-in extension popup interface that can be triggered in a single click.
    - Supports Chrome, Edge, and Firefox (please refer to the [Browser Extensions Guide](#extensions) for installation steps).
-
----
-
-## ✨ Key Features
-
-- 🔒 **100% Privacy-Focused**: All document diffing, JSON formatting, password generation, and data encoding/decoding are executed entirely in the **local browser (Client-Side)**. No data is sent to external servers, protecting your API keys, JWT tokens, and credentials.
-- 🧩 **Privacy-First Browser Extension**:
-  - **Zero High-Risk Permissions**: The extension does not request any host permissions (`Host Permissions`). It **does not read, sniff, or modify any page content** you visit, avoiding plugin hijacking or keylogger risks.
-  - **100% Offline Package**: Packed with all computation logic and static resources. No network requests, no uploads.
-  - **Cross-Browser Support**: A single codebase natively compatible with Chrome, Edge, and Firefox.
-- 🎨 **Sleek UI/UX**:
-  - Built with **React 19 + TailwindCSS 4.0** with smooth transitions and interactions.
-  - Supports **Dark/Light Mode** switching.
-  - Integrated with **CodeMirror** for syntax highlighting and real-time validation.
-- 🔎 **Fast Tool Discovery**: Search by name or keyword, filter by category, and keep local-only favorites and recent tools.
-- 🚀 **Serverless Ready**: Native compatibility with Cloudflare Workers/Pages environments. Comes with pre-configured GitHub Actions workflows.
 
 ---
 
@@ -122,9 +124,10 @@ You can use this toolbox in the following two ways:
 - Preview matches, offsets, captures, named groups, and replacement output in real time.
 - Supports the `g`, `i`, `m`, `s`, and `u` flags.
 
-### 10. 🔄 JSON/YAML & JSONPath
-- Convert JSON and YAML in both directions.
-- Evaluate JSONPath expressions against JSON input and return structured results.
+### 10. 🔄 Structured Data Workbench
+- Convert between JSON, YAML, XML, TOML, and CSV.
+- Perform JSONPath queries on JSON inputs, and validate data locally using JSON Schema.
+- Format Standard SQL, MySQL, PostgreSQL, SQLite, SQL Server, and PL/SQL.
 
 ---
 
@@ -136,7 +139,7 @@ You can use this toolbox in the following two ways:
 - **Core Components**:
   - [@uiw/react-codemirror](https://github.com/uiwjs/react-codemirror) - Integrated professional code editor.
   - [@noble/hashes](https://github.com/paulmillr/noble-hashes) - Pure JS implementation of cryptographic hash functions.
-  - [yaml](https://eemeli.org/yaml/) / [JSONPath Plus](https://github.com/JSONPath-Plus/JSONPath) - Local data conversion and querying.
+  - [yaml](https://eemeli.org/yaml/) / [JSONPath Plus](https://github.com/JSONPath-Plus/JSONPath) / [Ajv](https://ajv.js.org/) - Local data conversion, querying, and Schema validation.
   - [lucide-react](https://lucide.dev/) - Modern icon assets.
 
 ---

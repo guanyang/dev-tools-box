@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { makeJsonDiff, mergeJsonPathValue, transformJson } from "../tool-logic/json";
-import { JsonEditor, JsonHighlight } from "./shared";
+import { JsonEditor, JsonHighlight } from "./json-editor";
 
 const sampleJsonLeft = `{"service":"api","timeout":3000,"retries":2,"flags":{"beta":false}}`;
 const sampleJsonRight = `{"service":"api","timeout":5000,"retries":2,"flags":{"beta":true},"region":"us-east-1"}`;
