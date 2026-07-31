@@ -52,7 +52,7 @@
   - Integrated with **CodeMirror** for syntax highlighting and real-time validation.
 - 🔎 **Fast Tool Discovery**: Search by name or keyword, filter by category, and keep local-only favorites and recent tools.
 - ⌨️ **Keyboard First**: Press `Cmd/Ctrl + K` to open the command palette, using arrow keys and Enter to search and switch tools instantly.
-- 🧠 **Smart Detection and Tool Handoffs**: Content is detected only after an explicit paste, drop, or file selection. Copy, download, and “Send to” actions support typed flows such as JSON → YAML → Base64 → QR Code.
+- 🧠 **Smart Detection and Tool Handoffs**: Content is detected only after an explicit paste, drop, or file selection. Copy, download, and “Send to” actions support typed flows such as JSON → YAML → Base64 → Code Generator.
 - 🧵 **Responsive Large-Input Processing**: JSON and structured-data computations run in Web Workers with progress, cancellation, and input-size guidance.
 - 📲 **Installable Web App (PWA)**: The web version supports being installed as a PWA, caching core tools in the background so you can use them offline.
 - 🚀 **Serverless Ready (Serverless Friendly)**: Native compatibility with Cloudflare Workers/Pages environments. Comes with pre-configured GitHub Actions workflows.
@@ -119,8 +119,11 @@ You can use this toolbox in the following two ways:
 - Generate HMAC values with a user-provided key without uploading data.
 
 ### 8. 🕐 Time & Cron
-- Detect second or millisecond Unix timestamps and display common time zones.
-- Parse standard five-field Cron expressions and list upcoming runs.
+- Four tabs cover timestamp conversion, time-zone conversion, upcoming Cron runs, and date/time calculations.
+- Detect second or millisecond Unix timestamps, support common IANA time zones, and display offsets as `UTC±offset`.
+- Support five-, six-, and seven-field Cron expressions (five fields by default), with dynamic descriptions, per-field ranges, and upcoming runs calculated in the selected time zone.
+- Convert local date/time values between time zones, defaulting to the current local time.
+- Calculate time differences and add or subtract combined years, months, days, hours, minutes, and seconds.
 
 ### 9. 🧪 Regex Tester
 - Preview matches, offsets, captures, named groups, and replacement output in real time.
@@ -136,9 +139,12 @@ You can use this toolbox in the following two ways:
 - Verify HMAC, RSA, RSA-PSS, and ECDSA signatures locally with browser Web Crypto and a JWK.
 - Tokens and keys stay in current-page memory and are never written to history or URLs.
 
-### 12. ▦ QR Code Generator
-- Generate a local PNG QR Code from text, URLs, Base64, or another tool's output.
-- Copy or download the result and use it as the endpoint of a JSON → YAML → Base64 workflow.
+### 12. ▦ Code Generator
+- Separate QR Code and barcode tabs keep their inputs and results independent and leave room for future code types.
+- Customize QR foreground and background colors, choose common sizes from 128 to 1024 px, and optionally upload a local center icon.
+- Generate Code 128, Code 39, EAN-13, EAN-8, UPC-A, and ITF-14 barcodes.
+- Format-specific guidance updates with the selected barcode type, including character sets, lengths, examples, and check-digit rules. EAN, UPC, and ITF values can have their check digits generated and validated automatically.
+- Images, inputs, and uploaded icons are processed locally and can be copied or downloaded without being uploaded.
 
 ---
 
@@ -152,6 +158,7 @@ You can use this toolbox in the following two ways:
   - [@noble/hashes](https://github.com/paulmillr/noble-hashes) - Pure JS implementation of cryptographic hash functions.
   - [yaml](https://eemeli.org/yaml/) / [JSONPath Plus](https://github.com/JSONPath-Plus/JSONPath) / [@cfworker/json-schema](https://github.com/cfworker/cfworker/tree/main/packages/json-schema) - Local data conversion, querying, and CSP-safe Schema validation.
   - [qrcode](https://github.com/soldair/node-qrcode) - In-browser QR Code generation.
+  - [JsBarcode](https://github.com/lindell/JsBarcode) - In-browser linear barcode generation.
   - [lucide-react](https://lucide.dev/) - Modern icon assets.
 
 ---
@@ -198,7 +205,7 @@ This project supports packing offline extensions for Chrome, Edge, and Firefox.
 
 No need to install Node.js or run any compilation commands:
 
-1. Go to the [GitHub Releases](https://github.com/guanyang/dev-tools-box/releases) page and download the ZIP pack for your browser (e.g. `dev-tools-box-chrome-v1.0.0.zip`).
+1. Go to the [GitHub Releases](https://github.com/guanyang/dev-tools-box/releases) page and download the ZIP pack for your browser (e.g. `dev-tools-box-chrome-1.3.0.zip`).
 2. Extract the downloaded ZIP archive into a local folder.
 3. Load the unpacked extension by following the [⚙️ Installation Guide](#extension-install) below.
 

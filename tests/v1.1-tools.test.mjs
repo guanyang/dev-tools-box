@@ -10,7 +10,15 @@ import {
   generateUuidV7,
 } from "../app/tool-logic/id.ts";
 import { runRegex } from "../app/tool-logic/regex.ts";
-import { nextCronRuns, zonedDateTimeToDate } from "../app/tool-logic/time-cron.ts";
+import {
+  COMMON_TIME_ZONES,
+  calculateDateTimeDifference,
+  describeCron,
+  formatInTimeZone,
+  nextCronRuns,
+  shiftLocalDateTime,
+  zonedDateTimeToDate,
+} from "../app/tool-logic/time-cron.ts";
 
 test("generates valid UUID, ULID and token values", () => {
   assert.match(generateUuidV4(), /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
@@ -41,14 +49,102 @@ test("finds deterministic upcoming cron runs", () => {
     "2026-07-13T09:30:00.000Z",
     "2026-07-13T09:45:00.000Z",
   ]);
-  assert.throws(() => nextCronRuns("bad cron", new Date(), 1), /5 个字段/);
+  assert.throws(() => nextCronRuns("bad cron", new Date(), 1), /5、6 或 7 个字段/);
   assert.deepEqual(
     nextCronRuns("5/10 * * * *", new Date("2026-07-13T00:00:00.000Z"), 2).map((date) => date.toISOString()),
     ["2026-07-13T00:05:00.000Z", "2026-07-13T00:15:00.000Z"],
   );
+  assert.deepEqual(
+    nextCronRuns("0 9 * * 1-5", new Date("2026-07-12T23:00:00.000Z"), 2, "Asia/Shanghai")
+      .map((date) => date.toISOString()),
+    ["2026-07-13T01:00:00.000Z", "2026-07-14T01:00:00.000Z"],
+  );
+  assert.deepEqual(
+    nextCronRuns("30 9 * * *", new Date("2026-03-07T15:00:00.000Z"), 2, "America/New_York")
+      .map((date) => date.toISOString()),
+    ["2026-03-08T13:30:00.000Z", "2026-03-09T13:30:00.000Z"],
+  );
+  assert.deepEqual(
+    nextCronRuns("*/10 * * * * *", new Date("2026-07-13T00:00:04.000Z"), 3, "UTC", 6)
+      .map((date) => date.toISOString()),
+    ["2026-07-13T00:00:10.000Z", "2026-07-13T00:00:20.000Z", "2026-07-13T00:00:30.000Z"],
+  );
+  assert.deepEqual(
+    nextCronRuns("0 0 9 1 1 * 2028", new Date("2026-07-13T00:00:00.000Z"), 1, "UTC", 7)
+      .map((date) => date.toISOString()),
+    ["2028-01-01T09:00:00.000Z"],
+  );
+  assert.throws(
+    () => nextCronRuns("0 9 * * *", new Date(), 1, "UTC", 6),
+    /当前选择 6 段/,
+  );
   assert.equal(
     zonedDateTimeToDate("2026-07-14T18:00:00", "Asia/Shanghai").toISOString(),
     "2026-07-14T10:00:00.000Z",
+  );
+});
+
+test("describes cron expressions and formats international UTC offsets", () => {
+  assert.equal(describeCron("*/15 9-18 * * 1-5"), "工作日 09:00–18:59，每 15 分钟");
+  assert.equal(describeCron("*/10 * * * * *", 6), "每 10 秒");
+  assert.equal(describeCron("0 30 9 * * 1-5 2028", 7), "2028 年 工作日 09:30，第 00 秒");
+  assert.equal(describeCron("30 9 * * 1-5"), "工作日 09:30");
+  assert.equal(describeCron("0 0 1 * *"), "1 日 00:00");
+  assert.throws(() => describeCron("not a cron"), /5、6 或 7 个字段/);
+  assert.match(
+    formatInTimeZone(new Date("2026-01-15T12:00:00.000Z"), "Asia/Shanghai"),
+    /UTC\+8/,
+  );
+  assert.doesNotMatch(
+    formatInTimeZone(new Date("2026-01-15T12:00:00.000Z"), "Asia/Shanghai"),
+    /GMT/,
+  );
+  assert.ok(COMMON_TIME_ZONES.length >= 30);
+  assert.ok(COMMON_TIME_ZONES.includes("Asia/Kolkata"));
+  assert.ok(COMMON_TIME_ZONES.includes("Australia/Sydney"));
+  assert.ok(COMMON_TIME_ZONES.includes("Africa/Johannesburg"));
+});
+
+test("calculates date-time differences and multi-unit shifts", () => {
+  assert.deepEqual(
+    calculateDateTimeDifference("2026-07-31T10:20:30", "2026-08-02T12:23:34"),
+    { direction: 1, days: 2, hours: 2, minutes: 3, seconds: 4, totalSeconds: 180_184 },
+  );
+  assert.equal(
+    calculateDateTimeDifference("2026-08-02T12:23:34", "2026-07-31T10:20:30").direction,
+    -1,
+  );
+  assert.equal(
+    shiftLocalDateTime(
+      "2026-01-31T23:59:30",
+      { years: 0, months: 1, days: 1, hours: 1, minutes: 1, seconds: 30 },
+      "add",
+    ),
+    "2026-03-02T01:01:00",
+  );
+  assert.equal(
+    shiftLocalDateTime(
+      "2024-02-29T12:00:00",
+      { years: 1, months: 0, days: 0, hours: 0, minutes: 0, seconds: 0 },
+      "add",
+    ),
+    "2025-02-28T12:00:00",
+  );
+  assert.equal(
+    shiftLocalDateTime(
+      "2026-03-01T00:00:00",
+      { years: 0, months: 0, days: 0, hours: 0, minutes: 0, seconds: 1 },
+      "subtract",
+    ),
+    "2026-02-28T23:59:59",
+  );
+  assert.throws(
+    () => shiftLocalDateTime(
+      "2026-01-01T00:00:00",
+      { years: 0, months: -1, days: 0, hours: 0, minutes: 0, seconds: 0 },
+      "add",
+    ),
+    /非负整数/,
   );
 });
 

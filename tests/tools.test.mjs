@@ -49,6 +49,7 @@ test("builds relative toolbox URLs for Popup navigation", () => {
 
 test("filters tools by search text and category", () => {
   assert.deepEqual(filterTools(tools, "yaml").map((tool) => tool.id), ["data-converter"]);
+  assert.deepEqual(filterTools(tools, "条形码").map((tool) => tool.id), ["qr-generator"]);
   assert.deepEqual(filterTools(tools, "", "security").map((tool) => tool.id), [
     "hash-checksum",
     "jwt-inspector",

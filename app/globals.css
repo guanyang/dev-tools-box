@@ -801,6 +801,140 @@ h3 {
   border-radius: 8px;
 }
 
+.code-option-grid {
+  display: grid;
+  grid-template-columns: minmax(180px, 1.2fr) repeat(2, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.color-control,
+.file-control {
+  display: grid;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.color-control > span:last-child {
+  display: flex;
+  min-height: 40px;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--panel);
+  padding: 5px 10px;
+}
+
+.color-control input {
+  width: 34px;
+  height: 28px;
+  border: 0;
+  background: transparent;
+  padding: 0;
+}
+
+.color-control code {
+  color: var(--foreground);
+  text-transform: uppercase;
+}
+
+.icon-upload {
+  display: grid;
+  gap: 10px;
+  border: 1px dashed var(--accent-border);
+  border-radius: 8px;
+  background: var(--accent-soft);
+  padding: 14px;
+}
+
+.file-control input {
+  max-width: 100%;
+  color: var(--foreground);
+}
+
+.icon-selection {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+}
+
+.icon-selection img {
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--panel);
+  object-fit: contain;
+}
+
+.icon-selection span {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.icon-selection strong {
+  overflow: hidden;
+  color: var(--foreground);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.icon-selection small,
+.empty-option {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.icon-selection button {
+  min-height: 34px;
+  border: 1px solid var(--accent-border);
+  border-radius: 7px;
+  background: var(--panel);
+  color: var(--accent-strong);
+  font-weight: 800;
+  padding: 0 12px;
+}
+
+.code-format-help {
+  display: grid;
+  gap: 6px;
+  border: 1px solid var(--accent-border);
+  border-radius: 8px;
+  background: var(--accent-soft);
+  padding: 12px 14px;
+}
+
+.code-format-help strong {
+  color: var(--accent-strong);
+}
+
+.code-format-help span {
+  color: var(--foreground);
+  font-size: 13px;
+}
+
+.code-format-help code {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.code-result {
+  margin-top: 2px;
+}
+
+.barcode-result {
+  justify-items: stretch;
+}
+
+.barcode-result > img {
+  max-width: 100%;
+  justify-self: center;
+  border: 10px solid #ffffff;
+  border-radius: 8px;
+}
+
 .compact-tool-panel {
   max-width: 980px;
 }
@@ -928,11 +1062,6 @@ h3 {
   font-family: var(--font-geist-mono), "SFMono-Regular", Consolas, monospace;
 }
 
-.dual-tool-grid {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  align-items: start;
-}
-
 .subtool-card {
   display: grid;
   gap: 16px;
@@ -964,8 +1093,53 @@ h3 {
   padding: 10px;
 }
 
-.full-span {
-  grid-column: 1 / -1;
+.cron-field-guide {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(105px, 1fr));
+  gap: 8px;
+}
+
+.cron-field-guide > div {
+  display: grid;
+  gap: 3px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--panel-soft);
+  padding: 10px;
+}
+
+.cron-field-guide strong {
+  color: var(--accent-strong);
+}
+
+.cron-field-guide span,
+.cron-syntax-help {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.cron-syntax-help {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+}
+
+.cron-syntax-help code {
+  color: var(--accent-strong);
+  font-weight: 800;
+}
+
+.time-calculation-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: 18px;
+}
+
+.duration-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(80px, 1fr));
+  gap: 12px;
 }
 
 .flag-control {
@@ -1668,7 +1842,11 @@ textarea:focus {
     grid-template-columns: 1fr;
   }
 
-  .dual-tool-grid {
+  .time-calculation-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .code-option-grid {
     grid-template-columns: 1fr;
   }
 
@@ -1699,6 +1877,15 @@ textarea:focus {
 
   .workspace {
     padding: 18px;
+  }
+
+  .icon-selection {
+    grid-template-columns: 48px minmax(0, 1fr);
+  }
+
+  .icon-selection button {
+    grid-column: 1 / -1;
+    justify-self: start;
   }
 
   .copy-toast {
