@@ -52,7 +52,7 @@
   - 集成专业级 **CodeMirror** 编辑器，支持语法高亮和实时错误校验。
 - 🔎 **快速发现工具**：支持按名称或关键词搜索、分类筛选、收藏和最近使用；偏好仅保存在浏览器本地。
 - ⌨️ **键盘优先**：按 `Cmd/Ctrl + K` 打开命令面板，使用方向键与 Enter 快速切换工具。
-- 🧠 **智能识别与跨工具流转**：仅在用户主动粘贴、拖放或选择文件后识别内容；统一复制、下载和“发送到”，可组合 JSON → YAML → Base64 → QR Code。
+- 🧠 **智能识别与跨工具流转**：仅在用户主动粘贴、拖放或选择文件后识别内容；统一复制、下载和“发送到”，可组合 JSON → YAML → Base64 → 码生成器。
 - 🧵 **大输入不卡界面**：JSON 与结构化数据重计算在 Web Worker 中执行，支持进度、取消和输入大小提示。
 - 📲 **可安装网页应用**：在线版支持安装为 PWA，并在空闲时缓存核心工具，后续可离线打开。
 - 🚀 **零配置部署 (Serverless Friendly)**：原生适配 Cloudflare Workers/Pages 边缘运行环境，预置 GitHub Actions 持续集成工作流。
@@ -119,8 +119,11 @@
 - 支持使用用户输入密钥计算 HMAC，内容不会离开浏览器。
 
 ### 8. 🕐 时间与 Cron (Time & Cron)
-- 自动识别秒/毫秒 Unix 时间戳，并按常用时区显示。
-- 解析标准 5 字段 Cron 表达式，列出后续执行时间。
+- 通过四个 Tab 分别提供时间戳转换、时区转换、Cron 后续时间和时间计算。
+- 自动识别秒/毫秒 Unix 时间戳；支持常用 IANA 时区，并以 `UTC±时差` 显示偏移量。
+- 支持 5、6、7 字段 Cron（默认 5 字段），动态解析表达式含义、展示各字段范围，并按所选时区计算后续执行时间。
+- 支持本地日期时间的时区转换，默认使用当前本地时间。
+- 支持时间差计算，以及按年、月、日、时、分、秒进行组合加减。
 
 ### 9. 🧪 正则表达式测试 (Regex Tester)
 - 实时展示匹配位置、捕获组、命名组和替换预览。
@@ -136,9 +139,12 @@
 - 使用浏览器 Web Crypto 和 JWK 在本地验证 HMAC、RSA、RSA-PSS 与 ECDSA 签名。
 - Token 与密钥仅保留在当前页面内存，不写入历史或 URL。
 
-### 12. ▦ QR Code 生成
-- 将文本、URL、Base64 或上一步工具输出生成为本地 PNG QR Code。
-- 支持复制、下载，并作为 JSON → YAML → Base64 工作流的终点。
+### 12. ▦ 码生成器 (Code Generator)
+- 采用二维码与条形码两个 Tab，保留独立输入和生成结果，方便后续扩展其他码制。
+- 二维码支持自定义前景色、背景色、128–1024 px 常用尺寸，以及可选的本地图标上传。
+- 支持 Code 128、Code 39、EAN-13、EAN-8、UPC-A、ITF-14 条形码。
+- 切换条形码格式时自动展示字符、长度、示例和校验位要求；EAN、UPC、ITF 支持自动补充并验证校验位。
+- 所有图片均在浏览器本地生成，可直接复制或下载，不会上传输入内容或图标。
 
 ---
 
@@ -152,6 +158,7 @@
   - [@noble/hashes](https://github.com/paulmillr/noble-hashes) - 纯 JS 实现的加密哈希库.
   - [yaml](https://eemeli.org/yaml/) / [JSONPath Plus](https://github.com/JSONPath-Plus/JSONPath) / [@cfworker/json-schema](https://github.com/cfworker/cfworker/tree/main/packages/json-schema) - 本地数据转换、查询与 CSP 安全的 Schema 校验。
   - [qrcode](https://github.com/soldair/node-qrcode) - 浏览器内 QR Code 生成。
+  - [JsBarcode](https://github.com/lindell/JsBarcode) - 浏览器内一维条形码生成。
   - [lucide-react](https://lucide.dev/) - 现代化图标包。
 
 ---
@@ -198,7 +205,7 @@
 
 无需安装 Node.js 或执行任何编译命令，即可直接加载使用：
 
-1. 打开 [GitHub Releases](https://github.com/guanyang/dev-tools-box/releases) 页面，下载对应浏览器的最新版压缩包（例如：`dev-tools-box-chrome-v1.0.0.zip`）。
+1. 打开 [GitHub Releases](https://github.com/guanyang/dev-tools-box/releases) 页面，下载对应浏览器的最新版压缩包（例如：`dev-tools-box-chrome-1.3.0.zip`）。
 2. 将下载的 ZIP 压缩包解压到一个固定的本地文件夹中。
 3. 根据下文的 [⚙️ 浏览器加载指南](#extension-install) 在浏览器中载入该解压后的文件夹即可。
 

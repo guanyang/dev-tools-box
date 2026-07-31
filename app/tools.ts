@@ -160,10 +160,10 @@ export const tools: ToolDefinition[] = [
   },
   {
     id: "qr-generator",
-    label: "QR Code 生成",
-    description: "将文本、URL 或转换结果生成为本地 QR 图片。",
+    label: "码生成器",
+    description: "生成可定制的二维码和常用一维条形码。",
     category: "generate",
-    keywords: ["qr", "qrcode", "二维码", "url", "wifi"],
+    keywords: ["qr", "qrcode", "二维码", "barcode", "条形码", "code128", "code39", "ean", "upc", "itf"],
     icon: "qr-code",
     accepts: ["text", "url", "base64", "json", "yaml"], produces: ["image"], maxInputBytes: 4096, execution: "sync",
   },

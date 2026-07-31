@@ -4,6 +4,11 @@ import test from "node:test";
 import { analyzePasswordStrength } from "../app/tool-logic/password.ts";
 import { detectInput } from "../app/tool-logic/smart-detection.ts";
 import { inspectJwt, verifyJwt } from "../app/tool-logic/jwt.ts";
+import {
+  BARCODE_FORMATS,
+  getBarcodeFormat,
+  validateBarcodeValue,
+} from "../app/tool-logic/code-generator.ts";
 import { generateQrDataUrl } from "../app/tool-logic/qr.ts";
 import { executeHeavyTask } from "../app/tool-logic/worker-tasks.ts";
 import { getCompatibleTargets, tools } from "../app/tools.ts";
@@ -80,4 +85,35 @@ test("generates a local QR image as the final typed-chain output", async () => {
   const dataUrl = await generateQrDataUrl("eyJzZXJ2aWNlIjoiYXBpIn0=");
   assert.match(dataUrl, /^data:image\/png;base64,/);
   assert.ok(getCompatibleTargets("codec", "base64").some((tool) => tool.id === "qr-generator"));
+});
+
+test("validates the six supported barcode formats and GTIN check digits", () => {
+  assert.deepEqual(
+    BARCODE_FORMATS.map((format) => format.value),
+    ["CODE128", "CODE39", "EAN13", "EAN8", "UPC", "ITF14"],
+  );
+  assert.equal(validateBarcodeValue("CODE128", "ORDER-2026-001"), "ORDER-2026-001");
+  assert.equal(validateBarcodeValue("CODE39", "DEV TOOLS-39"), "DEV TOOLS-39");
+  assert.equal(validateBarcodeValue("EAN13", "400638133393"), "4006381333931");
+  assert.equal(validateBarcodeValue("EAN8", "5512345"), "55123457");
+  assert.equal(validateBarcodeValue("UPC", "03600029145"), "036000291452");
+  assert.equal(validateBarcodeValue("ITF14", "1001234500001"), "10012345000017");
+  assert.equal(getBarcodeFormat("UPC").label, "UPC-A");
+
+  assert.throws(() => validateBarcodeValue("CODE39", "lowercase"), /仅支持大写字母/);
+  assert.throws(() => validateBarcodeValue("EAN13", "4006381333932"), /校验位不正确/);
+  assert.throws(() => validateBarcodeValue("EAN8", "123"), /需要 7 或 8 位/);
+});
+
+test("customizes QR colors and size while preserving the legacy function", async () => {
+  const dataUrl = await generateQrDataUrl("https://tools.xcloudapi.com/", {
+    size: 128,
+    darkColor: "#123456",
+    lightColor: "#fefefe",
+  });
+  assert.match(dataUrl, /^data:image\/png;base64,/);
+  await assert.rejects(
+    generateQrDataUrl("same color", { darkColor: "#ffffff", lightColor: "#ffffff" }),
+    /不能相同/,
+  );
 });
