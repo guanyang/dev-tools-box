@@ -27,18 +27,30 @@ test("generates valid UUID, ULID and token values", () => {
   assert.match(generateToken(32), /^[A-Za-z0-9_-]{32}$/);
 });
 
-test("calculates SHA-256 and HMAC checksums", async () => {
+test("calculates legacy and modern hashes plus HMAC checksums", async () => {
+  assert.equal(
+    await hashBytes(new TextEncoder().encode("abc"), "MD5"),
+    "900150983cd24fb0d6963f7d28e17f72",
+  );
+  assert.equal(
+    await hashBytes(new TextEncoder().encode("abc"), "SHA-1"),
+    "a9993e364706816aba3e25717850c26c9cd0d89d",
+  );
   assert.equal(
     await hashBytes(new TextEncoder().encode("abc"), "SHA-256"),
     "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+  );
+  assert.equal(
+    await hashBytes(new TextEncoder().encode("abc"), "SHA-384"),
+    "cb00753f45a35e8bb5a03d699ac65007272c32ab0eded1631a8b605a43ff5bed8086072ba1e7cc2358baeca134c825a7",
   );
   assert.equal(
     await hmacText("The quick brown fox jumps over the lazy dog", "key", "SHA-256"),
     "f7bc83f430538424b13298e6aa6fb143ef4d59a14946175997479dbc2d1a3cd8",
   );
   assert.equal(
-    await hashBlob(new Blob(["abc"]), "SHA-256"),
-    "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+    await hashBlob(new Blob(["abc"]), "MD5"),
+    "900150983cd24fb0d6963f7d28e17f72",
   );
 });
 

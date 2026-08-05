@@ -2,6 +2,7 @@
 
 import CodeMirror from "@uiw/react-codemirror";
 import { json } from "@codemirror/lang-json";
+import { EditorView } from "@codemirror/view";
 import { Highlight, themes } from "prism-react-renderer";
 import { useContext } from "react";
 import { ThemeContext } from "../workbench-preferences";
@@ -28,15 +29,27 @@ export function JsonHighlight({ code, compact = false }: { code: string; compact
   );
 }
 
-export function JsonEditor({ label, value, onChange }: { label: string; value: string; onChange: (value: string) => void }) {
+export function JsonEditor({
+  label,
+  value,
+  onChange,
+  height = "290px",
+  lineWrapping = false,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  height?: string;
+  lineWrapping?: boolean;
+}) {
   const theme = useContext(ThemeContext);
   return (
     <CodeMirror
       aria-label={label}
       basicSetup={{ bracketMatching: true, closeBrackets: true, foldGutter: true, highlightActiveLine: true, highlightActiveLineGutter: true, lineNumbers: true }}
       className="json-editor"
-      extensions={jsonEditorExtensions}
-      height="290px"
+      extensions={lineWrapping ? [...jsonEditorExtensions, EditorView.lineWrapping] : jsonEditorExtensions}
+      height={height}
       onChange={onChange}
       theme={theme}
       value={value}

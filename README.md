@@ -48,7 +48,7 @@
   - **多浏览器兼容**：一套代码原生适配 Chrome、Edge 和 Firefox。
 - 🎨 **极致交互体验 (Modern UI/UX)**：
   - 基于 **React 19 + TailwindCSS 4.0** 打造的现代流线型界面。
-  - 支持 **明暗主题 (Dark/Light Mode)** 切换。
+  - 支持 **System/Light/Dark** 三态主题，以及适用于全部工具的专注模式。
   - 集成专业级 **CodeMirror** 编辑器，支持语法高亮和实时错误校验。
 - 🔎 **快速发现工具**：支持按名称或关键词搜索、分类筛选、收藏和最近使用；偏好仅保存在浏览器本地。
 - ⌨️ **键盘优先**：按 `Cmd/Ctrl + K` 打开命令面板，使用方向键与 Enter 快速切换工具。
@@ -80,15 +80,18 @@
 - 双栏实时对比两段文本的差异。
 - 高亮标识“新增（Green）”、“删除（Red）”和“修改（Yellow）”。
 - 支持一键左右双向合并，轻松打补丁或复制结果。
+- 支持拖动调整输入与差异区域、仅看输入或差异、自动换行和同步滚动。
 
 ### 2. 🎛️ JSON 格式化与编辑 (JSON Formatter)
 - 基于 CodeMirror 提供行号、高亮和括号匹配。
 - 支持一键美化（Format）与一键压缩（Minify）。
 - 实时校验 JSON 语法，精准定位错误行数与原因。
+- 输入与输出等高铺满可用空间，并可拖动调整左右占比。
 
 ### 3. 🔍 JSON 差异比对 (JSON Diff)
 - 针对 JSON 结构的深度对比。
 - **对象路径对齐**：自动忽略 JSON 键（Keys）的顺序差异，只比对具体值的变更。
+- 支持可调双输入与差异结果布局、单区查看、同步滚动和快速重置。
 
 ### 4. 🔑 随机密码生成器 (Password Generator)
 - 强随机性字符生成。
@@ -115,8 +118,8 @@
 - 使用浏览器安全随机数，支持一键复制单项或全部结果。
 
 ### 7. #️⃣ 哈希与文件校验 (Hash & Checksum)
-- 计算文本或本地文件的 SHA-256、SHA-512 摘要。
-- 支持使用用户输入密钥计算 HMAC，内容不会离开浏览器。
+- 计算文本或本地文件的 MD5、SHA-1、SHA-256、SHA-384、SHA-512 摘要，文件采用流式处理。
+- 支持 SHA-1、SHA-256、SHA-384、SHA-512 HMAC；MD5 与 SHA-1 会提示仅用于兼容旧校验值。
 
 ### 8. 🕐 时间与 Cron (Time & Cron)
 - 通过四个 Tab 分别提供时间戳转换、时区转换、Cron 后续时间和时间计算。
@@ -127,7 +130,8 @@
 
 ### 9. 🧪 正则表达式测试 (Regex Tester)
 - 实时展示匹配位置、捕获组、命名组和替换预览。
-- 支持 `g`、`i`、`m`、`s`、`u` Flags。
+- 支持 `g`、`i`、`m`、`s`、`u` Flags，并通过说明提示每个开关的匹配意图。
+- 内置邮箱、手机号、URL、IPv4、日期、时间、UUID、语义化版本、颜色和中文字符模板。
 
 ### 10. 🔄 结构化数据工作台 (Structured Data Workbench)
 - 在 JSON、YAML、XML、TOML 和 CSV 之间转换。
@@ -205,7 +209,7 @@
 
 无需安装 Node.js 或执行任何编译命令，即可直接加载使用：
 
-1. 打开 [GitHub Releases](https://github.com/guanyang/dev-tools-box/releases) 页面，下载对应浏览器的最新版压缩包（例如：`dev-tools-box-chrome-1.3.0.zip`）。
+1. 打开 [GitHub Releases](https://github.com/guanyang/dev-tools-box/releases) 页面，下载对应浏览器的最新版压缩包（例如：`dev-tools-box-chrome-1.5.0.zip`）。
 2. 将下载的 ZIP 压缩包解压到一个固定的本地文件夹中。
 3. 根据下文的 [⚙️ 浏览器加载指南](#extension-install) 在浏览器中载入该解压后的文件夹即可。
 

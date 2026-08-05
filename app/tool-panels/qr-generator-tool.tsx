@@ -126,12 +126,12 @@ export default function CodeGeneratorTool() {
         ))}
       </div>
 
-      {error && <div className="error-banner">{error}</div>}
+      {error && <div className="error-banner" role="alert">{error}</div>}
 
       {activeTab === "qr" && (
         <section
           id="code-generator-panel-qr"
-          className="subtool-card"
+          className="subtool-card code-generator-workspace"
           role="tabpanel"
           aria-labelledby="code-generator-tab-qr"
         >
@@ -198,7 +198,7 @@ export default function CodeGeneratorTool() {
       {activeTab === "barcode" && (
         <section
           id="code-generator-panel-barcode"
-          className="subtool-card"
+          className="subtool-card code-generator-workspace"
           role="tabpanel"
           aria-labelledby="code-generator-tab-barcode"
         >

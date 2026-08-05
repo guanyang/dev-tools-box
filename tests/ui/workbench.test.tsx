@@ -2,6 +2,8 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { DevToolsWorkbench } from "../../app/dev-tools-workbench";
+import Home from "../../app/page";
+import DocDiffTool from "../../app/tool-panels/doc-diff-tool";
 import JsonDiffTool from "../../app/tool-panels/json-diff-tool";
 import { JsonEditor } from "../../app/tool-panels/json-editor";
 import CodeGeneratorTool from "../../app/tool-panels/qr-generator-tool";
@@ -28,6 +30,10 @@ beforeEach(() => {
       addEventListener: vi.fn(),
       removeEventListener: vi.fn(),
     })),
+  });
+  Object.defineProperty(window, "scrollTo", {
+    configurable: true,
+    value: vi.fn(),
   });
 });
 
@@ -194,6 +200,165 @@ describe("workbench keyboard and theme interactions", () => {
     expect(screen.getByRole("heading", { name: "正则表达式测试" })).toBeTruthy();
   });
 
+  test("keeps a tool draft in memory and returns to the top when switching tools", async () => {
+    const scrollTo = vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
+    const user = userEvent.setup();
+    render(<DevToolsWorkbench initialTool="regex-tester" />);
+
+    const pattern = await screen.findByLabelText("正则表达式");
+    await user.clear(pattern);
+    await user.type(pattern, "AUDIT_MARKER");
+    await user.click(screen.getByRole("button", { name: "哈希与文件校验" }));
+    await user.click(screen.getByRole("button", { name: "正则表达式测试" }));
+
+    expect((screen.getByLabelText("正则表达式") as HTMLInputElement).value).toBe("AUDIT_MARKER");
+    expect(scrollTo).toHaveBeenCalledWith({ behavior: "auto", top: 0 });
+  });
+
+  test("explains the intent of each regex flag", async () => {
+    render(<DevToolsWorkbench initialTool="regex-tester" />);
+
+    const globalFlag = await screen.findByRole("button", { name: /g 全局匹配/ });
+    const multilineFlag = screen.getByRole("button", { name: /m 多行模式/ });
+    expect(globalFlag.getAttribute("title")).toBe("查找全部匹配，而不是只返回第一处");
+    expect(multilineFlag.getAttribute("title")).toBe("让 ^ 和 $ 分别匹配每一行的开头与结尾");
+    expect(globalFlag.getAttribute("aria-pressed")).toBe("true");
+    expect(multilineFlag.getAttribute("aria-pressed")).toBe("false");
+  });
+
+  test("applies a compact regex preset without replacing test text", async () => {
+    const user = userEvent.setup();
+    render(<DevToolsWorkbench initialTool="regex-tester" />);
+
+    const testText = await screen.findByLabelText("测试文本") as HTMLTextAreaElement;
+    await user.clear(testText);
+    await user.type(testText, "联系 dev@example.com 获取帮助");
+    await user.selectOptions(screen.getByLabelText("常用正则"), "email");
+
+    expect((screen.getByLabelText("正则表达式") as HTMLInputElement).value).toBe("[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}");
+    expect(screen.getByRole("button", { name: /i 忽略大小写/ }).getAttribute("aria-pressed")).toBe("true");
+    expect(testText.value).toBe("联系 dev@example.com 获取帮助");
+    expect((screen.getByLabelText("替换表达式") as HTMLInputElement).value).toBe("");
+    expect(screen.queryByRole("button", { name: /邮箱地址/ })).toBeNull();
+  });
+
+  test("offers compatibility hashes without allowing HMAC-MD5", async () => {
+    const user = userEvent.setup();
+    render(<DevToolsWorkbench initialTool="hash-checksum" />);
+
+    const algorithm = await screen.findByLabelText("算法") as HTMLSelectElement;
+    expect(screen.getByRole("option", { name: "MD5（旧校验）" })).toBeTruthy();
+    expect(screen.getByRole("option", { name: "SHA-1（旧校验）" })).toBeTruthy();
+    expect(screen.getByRole("option", { name: "SHA-384" })).toBeTruthy();
+
+    await user.selectOptions(algorithm, "MD5");
+    expect(screen.getByRole("note").textContent).toContain("不适合密码存储或数字签名");
+    await user.selectOptions(screen.getByLabelText("输入类型"), "hmac");
+
+    expect(algorithm.value).toBe("SHA-256");
+    expect(screen.queryByRole("option", { name: "MD5（旧校验）" })).toBeNull();
+  });
+
+  test("opens a web deep link and keeps browser history in sync", async () => {
+    window.history.replaceState({}, "", "/?tool=json-format");
+    const user = userEvent.setup();
+    render(<Home />);
+
+    expect(await screen.findByRole("heading", { name: "JSON 格式化" })).toBeTruthy();
+    await user.click(screen.getByRole("button", { name: "正则表达式测试" }));
+    expect(window.location.search).toBe("?tool=regex-tester");
+
+    window.history.replaceState({}, "", "/?tool=json-format");
+    fireEvent(window, new PopStateEvent("popstate"));
+    expect(await screen.findByRole("heading", { name: "JSON 格式化" })).toBeTruthy();
+  });
+
+  test("opens and dismisses the mobile tool drawer", async () => {
+    vi.mocked(window.matchMedia).mockImplementation(() => ({
+      matches: true,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    }) as unknown as MediaQueryList);
+    const user = userEvent.setup();
+    render(<DevToolsWorkbench />);
+
+    const trigger = screen.getByRole("button", { name: "打开工具菜单" });
+    await user.click(trigger);
+    expect(trigger.getAttribute("aria-expanded")).toBe("true");
+    expect(document.body.style.overflow).toBe("hidden");
+    await user.click(screen.getByRole("button", { name: "关闭工具菜单" }));
+    expect(trigger.getAttribute("aria-expanded")).toBe("false");
+    expect(document.body.style.overflow).toBe("");
+    await waitFor(() => expect(document.activeElement).toBe(trigger));
+
+    await user.click(trigger);
+    fireEvent.keyDown(window, { key: "Escape" });
+    expect(trigger.getAttribute("aria-expanded")).toBe("false");
+  });
+
+  test("exposes selectable tool states and localized errors", async () => {
+    const user = userEvent.setup();
+    render(<DevToolsWorkbench initialTool="id-generator" />);
+
+    const uuidV7 = await screen.findByRole("button", { name: /UUID v7/ });
+    expect(uuidV7.getAttribute("aria-pressed")).toBe("true");
+    await user.click(screen.getByRole("button", { name: /UUID v4/ }));
+    expect(uuidV7.getAttribute("aria-pressed")).toBe("false");
+
+    await user.click(screen.getByRole("button", { name: "正则表达式测试" }));
+    fireEvent.change(await screen.findByLabelText("正则表达式"), { target: { value: "(" } });
+    expect(screen.getByRole("alert").textContent).toContain("正则表达式无效");
+    expect(screen.getByRole("button", { name: /g 全局匹配/ }).getAttribute("aria-pressed")).toBe("true");
+
+    await user.click(screen.getByRole("button", { name: "JWT / JWK 校验" }));
+    fireEvent.change(await screen.findByLabelText("JWT Token"), { target: { value: "abc.def.ghi" } });
+    await user.click(screen.getByRole("button", { name: "解析声明" }));
+    expect(screen.getByRole("alert").textContent).toContain("JWT 内容无法解析");
+  });
+
+  test("restores focus after closing a global dialog", async () => {
+    const user = userEvent.setup();
+    render(<DevToolsWorkbench />);
+    const trigger = screen.getByRole("button", { name: /搜索工具/ });
+
+    await user.click(trigger);
+    expect(screen.getByPlaceholderText("输入工具名、用途或关键词")).toBe(document.activeElement);
+    fireEvent.keyDown(window, { key: "Escape" });
+    await waitFor(() => expect(document.activeElement).toBe(trigger));
+  });
+
+  test("filters codec methods and separates JSONPath into its own tab", async () => {
+    const user = userEvent.setup();
+    render(<DevToolsWorkbench initialTool="codec" />);
+
+    const search = await screen.findByPlaceholderText("搜索转换方式");
+    await user.type(search, "Base64");
+    expect(screen.getByRole("button", { name: /Base64编码/ })).toBeTruthy();
+    expect(screen.getByRole("button", { name: /Base64解码/ })).toBeTruthy();
+    expect(screen.queryByRole("button", { name: /Unicode编码/ })).toBeNull();
+
+    await user.click(screen.getByRole("button", { name: "结构化数据工作台" }));
+    expect(await screen.findByRole("tab", { name: "JSONPath 查询" })).toBeTruthy();
+    expect(screen.queryByRole("heading", { name: "JSONPath 查询" })).toBeNull();
+    await user.click(screen.getByRole("tab", { name: "JSONPath 查询" }));
+    expect(screen.getByRole("heading", { name: "JSONPath 查询" })).toBeTruthy();
+  });
+
+  test("uses explicit action copy, UTC offsets and focus layout types", async () => {
+    const user = userEvent.setup();
+    const { container } = render(<DevToolsWorkbench initialTool="time-cron" />);
+    expect((await screen.findByRole("option", { name: "UTC+08:00 · Asia/Shanghai" })).getAttribute("value")).toBe("Asia/Shanghai");
+
+    await user.click(screen.getByRole("button", { name: "码生成器" }));
+    await user.click(await screen.findByRole("button", { name: "专注模式" }));
+    expect(container.querySelector(".app-shell")?.classList.contains("focus-layout-split-preview")).toBe(true);
+
+    await user.click(screen.getByRole("button", { name: "退出专注" }));
+    await user.click(screen.getByRole("button", { name: "JSON 格式化" }));
+    await user.click(await screen.findByRole("button", { name: "格式化" }));
+    expect(await screen.findByRole("button", { name: "发送并打开" })).toBeTruthy();
+  });
+
   test("cycles and persists the theme preference", async () => {
     const user = userEvent.setup();
     render(<DevToolsWorkbench />);
@@ -223,6 +388,59 @@ describe("workbench keyboard and theme interactions", () => {
   test("uses a dark CodeMirror theme when the document theme is dark", () => {
     const { container } = render(<ThemeContext.Provider value="dark"><JsonEditor label="JSON" value="{}" onChange={() => {}} /></ThemeContext.Provider>);
     expect(container.querySelector(".cm-theme-dark")).toBeTruthy();
+  });
+
+  test("enters focus mode and exits it with Escape", async () => {
+    const { container } = render(<DevToolsWorkbench initialTool="password" />);
+    const focusButton = await screen.findByRole("button", { name: "专注模式" });
+
+    fireEvent.click(focusButton);
+    expect(container.querySelector(".app-shell")?.classList.contains("focus-mode")).toBe(true);
+    expect(screen.getByRole("toolbar", { name: "专注模式" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "退出专注" })).toBeTruthy();
+
+    fireEvent.keyDown(window, { key: "Escape" });
+    expect(container.querySelector(".app-shell")?.classList.contains("focus-mode")).toBe(false);
+  });
+
+  test("uses equal title rows for the JSON formatter panes", async () => {
+    const { container } = render(<DevToolsWorkbench initialTool="json-format" />);
+
+    await screen.findByLabelText("输入 JSON");
+    expect(container.querySelectorAll(".json-format-workspace .editor-block-header")).toHaveLength(2);
+  });
+
+  test("resizes document editors with the keyboard", () => {
+    render(<DocDiffTool />);
+    const separator = screen.getByRole("separator", { name: "调整原始文档和新文档大小" });
+
+    expect(separator.getAttribute("aria-valuenow")).toBe("50");
+    fireEvent.keyDown(separator, { key: "ArrowRight" });
+    expect(separator.getAttribute("aria-valuenow")).toBe("55");
+  });
+
+  test("keeps both document editors when focusing on the input pane", () => {
+    render(<DocDiffTool />);
+
+    fireEvent.click(screen.getByRole("button", { name: "只看输入" }));
+    expect(screen.getByLabelText("原始文档")).toBeTruthy();
+    expect(screen.getByLabelText("新文档")).toBeTruthy();
+    expect(screen.queryByRole("table", { name: "文档差异结果" })).toBeNull();
+  });
+
+  test("lets JSON diff focus on the result and restore the split view", () => {
+    render(
+      <ToolRuntimeProvider value={{ incoming: null, sendToTool: vi.fn(), consumeTransfer: vi.fn() }}>
+        <JsonDiffTool />
+      </ToolRuntimeProvider>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "只看差异" }));
+    expect(screen.queryByLabelText("左侧 JSON")).toBeNull();
+    expect(screen.getByRole("table", { name: "JSON 差异结果" })).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: "恢复分栏" }));
+    expect(screen.getByLabelText("左侧 JSON")).toBeTruthy();
   });
 
   test("detects explicitly pasted JSON and opens the recommended tool", async () => {

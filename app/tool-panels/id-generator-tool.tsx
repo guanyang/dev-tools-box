@@ -39,7 +39,7 @@ export default function IdGeneratorTool() {
     <section className="tool-panel compact-tool-panel">
       <div className="choice-grid">
         {idKinds.map((item) => (
-          <button className={kind === item.id ? "choice-card selected" : "choice-card"} type="button" key={item.id} onClick={() => setKind(item.id)}>
+          <button className={kind === item.id ? "choice-card selected" : "choice-card"} type="button" key={item.id} aria-pressed={kind === item.id} onClick={() => setKind(item.id)}>
             <strong>{item.label}</strong><small>{item.description}</small>
           </button>
         ))}

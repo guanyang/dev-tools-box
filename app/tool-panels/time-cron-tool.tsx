@@ -6,6 +6,7 @@ import {
   calculateDateTimeDifference,
   describeCron,
   formatInTimeZone,
+  formatTimeZoneLabel,
   nextCronRuns,
   normalizeUnixTimestamp,
   shiftLocalDateTime,
@@ -196,7 +197,7 @@ export default function TimeCronTool() {
       >
         <header><h3>Unix 时间戳转换</h3><span>自动识别秒/毫秒</span></header>
         <label className="text-control"><span>时间戳</span><input value={timestamp} onChange={(event) => setTimestamp(event.target.value)} /></label>
-        <label className="select-control"><span>显示时区</span><select value={timeZone} onChange={(event) => setTimeZone(event.target.value)}>{COMMON_TIME_ZONES.map((zone) => <option key={zone}>{zone}</option>)}</select></label>
+        <label className="select-control"><span>显示时区</span><select value={timeZone} onChange={(event) => setTimeZone(event.target.value)}>{COMMON_TIME_ZONES.map((zone) => <option value={zone} key={zone}>{formatTimeZoneLabel(zone)}</option>)}</select></label>
         <div className="action-bar"><button type="button" onClick={convertTimestamp}>转换</button><button type="button" onClick={() => setTimestamp(String(Math.floor(Date.now() / 1000)))}>使用当前时间</button></div>
         {dateResult && <div className="result-list"><code>{dateResult.toISOString()}</code><code>{formatInTimeZone(dateResult, timeZone)}</code><code>{Math.floor(dateResult.getTime() / 1000)} 秒</code><code>{dateResult.getTime()} 毫秒</code></div>}
       </section>}
@@ -209,8 +210,8 @@ export default function TimeCronTool() {
         <header><h3>源时区 → 目标时区</h3><span>输入源时区的本地时间</span></header>
         <label className="text-control"><span>本地日期时间</span><input type="datetime-local" step="1" value={localDateTime} onChange={(event) => setLocalDateTime(event.target.value)} /></label>
         <div className="inline-form">
-          <label className="select-control"><span>源时区</span><select value={sourceTimeZone} onChange={(event) => setSourceTimeZone(event.target.value)}>{COMMON_TIME_ZONES.map((zone) => <option key={zone}>{zone}</option>)}</select></label>
-          <label className="select-control"><span>目标时区</span><select value={targetTimeZone} onChange={(event) => setTargetTimeZone(event.target.value)}>{COMMON_TIME_ZONES.map((zone) => <option key={zone}>{zone}</option>)}</select></label>
+          <label className="select-control"><span>源时区</span><select value={sourceTimeZone} onChange={(event) => setSourceTimeZone(event.target.value)}>{COMMON_TIME_ZONES.map((zone) => <option value={zone} key={zone}>{formatTimeZoneLabel(zone)}</option>)}</select></label>
+          <label className="select-control"><span>目标时区</span><select value={targetTimeZone} onChange={(event) => setTargetTimeZone(event.target.value)}>{COMMON_TIME_ZONES.map((zone) => <option value={zone} key={zone}>{formatTimeZoneLabel(zone)}</option>)}</select></label>
         </div>
         <div className="action-bar"><button type="button" onClick={convertTimeZone}>转换时区</button></div>
         {zoneResult && <div className="result-list"><code>{formatInTimeZone(zoneResult, sourceTimeZone)}</code><code>→ {formatInTimeZone(zoneResult, targetTimeZone)}</code><code>{zoneResult.toISOString()}</code></div>}
@@ -224,7 +225,7 @@ export default function TimeCronTool() {
         <header><h3>Cron 后续时间</h3><span>{cronFieldCount} 段，按所选时区计算</span></header>
         <div className="inline-form">
           <label className="select-control"><span>Cron 格式</span><select value={cronFieldCount} onChange={(event) => changeCronFieldCount(Number(event.target.value) as CronFieldCount)}>{cronFormats.map((format) => <option value={format.fieldCount} key={format.fieldCount}>{format.label}</option>)}</select></label>
-          <label className="select-control"><span>计算时区</span><select value={cronTimeZone} onChange={(event) => { setCronTimeZone(event.target.value); setCronRuns([]); setError(""); }}>{COMMON_TIME_ZONES.map((zone) => <option key={zone}>{zone}</option>)}</select></label>
+          <label className="select-control"><span>计算时区</span><select value={cronTimeZone} onChange={(event) => { setCronTimeZone(event.target.value); setCronRuns([]); setError(""); }}>{COMMON_TIME_ZONES.map((zone) => <option value={zone} key={zone}>{formatTimeZoneLabel(zone)}</option>)}</select></label>
         </div>
         <label className="text-control"><span>{cronFormat.fieldOrder}</span><input value={cron} onChange={(event) => { setCron(event.target.value); setCronRuns([]); setError(""); }} /></label>
         <div className="cron-field-guide" aria-label={`${cronFieldCount} 段字段说明`}>
@@ -272,7 +273,7 @@ export default function TimeCronTool() {
           {shiftResult && <div className="result-list"><code>{shiftResult.replace("T", " ")}</code></div>}
         </section>
       </section>}
-      {error && <div className="error-banner">{error}</div>}
+      {error && <div className="error-banner" role="alert">{error}</div>}
     </section>
   );
 }

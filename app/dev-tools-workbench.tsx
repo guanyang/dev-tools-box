@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useMemo, useState, useEffect } from "react";
+import { Suspense, useMemo, useState, useEffect, useRef } from "react";
 import {
   Binary,
   Braces,
@@ -11,6 +11,9 @@ import {
   Hash,
   KeyRound,
   Keyboard,
+  Menu,
+  Maximize2,
+  Minimize2,
   Monitor,
   Moon,
   RefreshCw,
@@ -89,6 +92,7 @@ export function DevToolsWorkbench({
 }: DevToolsWorkbenchProps) {
   const normalizedInitialTool = normalizeToolId(initialTool);
   const [activeTool, setActiveTool] = useState<ToolId>(normalizedInitialTool);
+  const [visitedTools, setVisitedTools] = useState<ToolId[]>([normalizedInitialTool]);
   const [isRailExpanded, setIsRailExpanded] = useState(false);
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<ToolCategoryFilter>("all");
@@ -98,11 +102,16 @@ export function DevToolsWorkbench({
   const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>("light");
   const [isCommandOpen, setIsCommandOpen] = useState(false);
   const [isDetectOpen, setIsDetectOpen] = useState(false);
+  const [isFocusMode, setIsFocusMode] = useState(false);
   const [detectValue, setDetectValue] = useState("");
   const [detection, setDetection] = useState<DetectionResult | null>(null);
   const [incoming, setIncoming] = useState<ToolTransfer | null>(null);
   const [commandQuery, setCommandQuery] = useState("");
   const [commandIndex, setCommandIndex] = useState(0);
+  const commandReturnFocusRef = useRef<HTMLElement | null>(null);
+  const detectReturnFocusRef = useRef<HTMLElement | null>(null);
+  const railRef = useRef<HTMLElement | null>(null);
+  const mobileRailTriggerRef = useRef<HTMLButtonElement | null>(null);
   const [recentTools, setRecentTools] = useState<ToolId[]>(() => [
     normalizedInitialTool,
     ...readToolIds(RECENT_KEY).filter((id) => id !== normalizedInitialTool),
@@ -111,6 +120,15 @@ export function DevToolsWorkbench({
   useEffect(() => {
     storeToolIds(RECENT_KEY, recentTools);
   }, [recentTools]);
+
+  useEffect(() => {
+    const nextTool = normalizeToolId(initialTool);
+    const frame = window.requestAnimationFrame(() => {
+      setActiveTool(nextTool);
+      setVisitedTools((current) => current.includes(nextTool) ? current : [...current, nextTool]);
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [initialTool]);
 
   useEffect(() => {
     const media = window.matchMedia("(prefers-color-scheme: dark)");
@@ -126,17 +144,57 @@ export function DevToolsWorkbench({
   }, [theme]);
 
   useEffect(() => {
+    if (!isRailExpanded || !window.matchMedia("(max-width: 620px)").matches) return;
+    const rail = railRef.current;
+    const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : mobileRailTriggerRef.current;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.requestAnimationFrame(() => rail?.querySelector<HTMLElement>("button, input")?.focus());
+
+    const containFocus = (event: KeyboardEvent) => {
+      if (event.key !== "Tab" || !rail) return;
+      const focusable = Array.from(rail.querySelectorAll<HTMLElement>("button:not(:disabled), input:not(:disabled), [tabindex]:not([tabindex='-1'])"));
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    };
+    rail?.addEventListener("keydown", containFocus);
+    return () => {
+      rail?.removeEventListener("keydown", containFocus);
+      document.body.style.overflow = previousOverflow;
+      restoreFocus(previousFocus);
+    };
+  }, [isRailExpanded]);
+
+  useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       if (isCommandPaletteShortcut(event)) {
         event.preventDefault();
-        setIsCommandOpen((open) => !open);
+        if (isCommandOpen) {
+          setIsCommandOpen(false);
+          restoreFocus(commandReturnFocusRef.current);
+        } else {
+          commandReturnFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+          setIsCommandOpen(true);
+        }
       } else if (event.key === "Escape") {
-        setIsCommandOpen(false);
+        if (isCommandOpen) {
+          setIsCommandOpen(false);
+          restoreFocus(commandReturnFocusRef.current);
+        }
+        if (isDetectOpen) {
+          setIsDetectOpen(false);
+          restoreFocus(detectReturnFocusRef.current);
+        }
+        setIsFocusMode(false);
+        setIsRailExpanded(false);
       }
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, []);
+  }, [isCommandOpen, isDetectOpen]);
 
   const visibleTools = useMemo(() => {
     const matched = filterTools(tools, query, category);
@@ -145,12 +203,15 @@ export function DevToolsWorkbench({
   const recentDefinitions = recentTools
     .map((toolId) => tools.find((tool) => tool.id === toolId))
     .filter((tool) => tool !== undefined);
-  const ActiveTool = toolLoaders[activeTool];
   const activeDefinition = tools.find((tool) => tool.id === activeTool) ?? tools[0];
   const commandTools = filterTools(tools, commandQuery);
 
   function selectTool(toolId: ToolId) {
     setActiveTool(toolId);
+    setVisitedTools((current) => current.includes(toolId) ? current : [...current, toolId]);
+    setIsFocusMode(false);
+    if (window.matchMedia("(max-width: 620px)").matches) setIsRailExpanded(false);
+    window.scrollTo({ behavior: "auto", top: 0 });
     setRecentTools((current) => {
       return [toolId, ...current.filter((id) => id !== toolId)].slice(0, 5);
     });
@@ -161,6 +222,30 @@ export function DevToolsWorkbench({
 
   function cycleTheme() {
     setTheme((current) => current === "system" ? "light" : current === "light" ? "dark" : "system");
+  }
+
+  function restoreFocus(target: HTMLElement | null) {
+    window.requestAnimationFrame(() => target?.focus());
+  }
+
+  function openCommand() {
+    commandReturnFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    setIsCommandOpen(true);
+  }
+
+  function closeCommand() {
+    setIsCommandOpen(false);
+    restoreFocus(commandReturnFocusRef.current);
+  }
+
+  function openDetect() {
+    detectReturnFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    setIsDetectOpen(true);
+  }
+
+  function closeDetect() {
+    setIsDetectOpen(false);
+    restoreFocus(detectReturnFocusRef.current);
   }
 
   function toggleFavorite(toolId: ToolId) {
@@ -197,8 +282,9 @@ export function DevToolsWorkbench({
   return (
     <ToolRuntimeProvider value={{ incoming, sendToTool, consumeTransfer: (id) => setIncoming((current) => current?.id === id ? null : current) }}>
     <ThemeContext.Provider value={resolvedTheme}>
-    <main className={isRailExpanded ? "app-shell rail-expanded" : "app-shell"}>
-      <aside className="tool-rail" aria-label="开发者工具">
+    <main className={`${isRailExpanded ? "app-shell rail-expanded" : "app-shell"}${isFocusMode ? ` focus-mode focus-layout-${activeDefinition.focusLayout}` : ""}`}>
+      {isRailExpanded && <button className="mobile-rail-backdrop" type="button" aria-label="关闭工具菜单" onClick={() => setIsRailExpanded(false)} />}
+      <aside className="tool-rail" aria-label="开发者工具" ref={railRef}>
         <div className="brand-block">
           <div className="brand-mark">DT</div>
           <div className="rail-copy"><p className="eyebrow">Developer Tools</p><h1>开发者工具箱</h1></div>
@@ -246,23 +332,38 @@ export function DevToolsWorkbench({
 
       <section className="workspace">
         <header className="workspace-header">
-          <div><p className="eyebrow">Browser-only utility suite · {TOOL_CATEGORIES.find((item) => item.id === activeDefinition.category)?.label}</p><h2>{activeDefinition.label}</h2></div>
+          <div className="workspace-heading">
+            <button className="mobile-rail-trigger" ref={mobileRailTriggerRef} type="button" aria-controls="tool-navigation" aria-expanded={isRailExpanded} aria-label="打开工具菜单" onClick={() => setIsRailExpanded(true)}><Menu aria-hidden="true" size={18} /><span>工具</span></button>
+            <div><p className="eyebrow">Browser-only utility suite · {TOOL_CATEGORIES.find((item) => item.id === activeDefinition.category)?.label}</p><h2>{activeDefinition.label}</h2></div>
+          </div>
           <div className="workspace-actions">
-            <button type="button" className="header-action" onClick={() => setIsDetectOpen(true)} title="粘贴或选择内容后推荐工具"><ScanSearch aria-hidden="true" size={17} /><span>智能识别</span></button>
-            <button type="button" className="header-action" onClick={() => setIsCommandOpen(true)} title="搜索工具（⌘/Ctrl K）"><Keyboard aria-hidden="true" size={17} /><span>搜索工具</span><kbd>⌘K</kbd></button>
+            <button type="button" className="header-action" onClick={() => setIsFocusMode(true)} title="隐藏导航并铺满当前工具"><Maximize2 aria-hidden="true" size={17} /><span>专注模式</span></button>
+            <button type="button" className="header-action" onClick={openDetect} title="粘贴或选择内容后推荐工具"><ScanSearch aria-hidden="true" size={17} /><span>智能识别</span></button>
+            <button type="button" className="header-action" onClick={openCommand} title="搜索工具（⌘/Ctrl K）"><Keyboard aria-hidden="true" size={17} /><span>搜索工具</span><kbd>⌘K</kbd></button>
             <button type="button" className="header-action theme-action" onClick={cycleTheme} aria-label={`当前主题：${theme}，点击切换`} title={`主题：${theme}`}>
               {theme === "system" ? <Monitor aria-hidden="true" size={17} /> : theme === "dark" ? <Moon aria-hidden="true" size={17} /> : <Sun aria-hidden="true" size={17} />}
             </button>
             <div className="status-pills"><span>离线可用</span><span>无上传</span></div>
           </div>
         </header>
-        <Suspense fallback={<div className="tool-loading" role="status">正在加载工具…</div>}>
-          <ActiveTool />
-        </Suspense>
+        {isFocusMode && (
+          <div className="focus-mode-bar" role="toolbar" aria-label="专注模式">
+            <div><span>专注模式</span><strong>{activeDefinition.label}</strong></div>
+            <button type="button" onClick={() => setIsFocusMode(false)} title="退出专注模式（Esc）"><Minimize2 aria-hidden="true" size={16} />退出专注</button>
+          </div>
+        )}
+        {visitedTools.map((toolId) => {
+          const ToolPanel = toolLoaders[toolId];
+          return <div className="tool-stage" hidden={toolId !== activeTool} key={toolId}>
+            <Suspense fallback={<div className="tool-loading" role="status">正在加载工具…</div>}>
+              <ToolPanel />
+            </Suspense>
+          </div>;
+        })}
       </section>
     </main>
     {isCommandOpen && (
-      <div className="command-backdrop" role="presentation" onMouseDown={() => setIsCommandOpen(false)}>
+      <div className="command-backdrop" role="presentation" onMouseDown={closeCommand}>
         <section className="command-palette" role="dialog" aria-modal="true" aria-label="搜索工具" onMouseDown={(event) => event.stopPropagation()}>
           <label className="command-search"><Search aria-hidden="true" size={19} /><input autoFocus type="search" placeholder="输入工具名、用途或关键词" value={commandQuery} onChange={(event) => { setCommandQuery(event.target.value); setCommandIndex(0); }} onKeyDown={(event) => {
             if (event.key === "ArrowDown") { event.preventDefault(); setCommandIndex((index) => Math.min(index + 1, commandTools.length - 1)); }
@@ -281,17 +382,17 @@ export function DevToolsWorkbench({
       </div>
     )}
     {isDetectOpen && (
-      <div className="command-backdrop" role="presentation" onMouseDown={() => setIsDetectOpen(false)}>
+      <div className="command-backdrop" role="presentation" onMouseDown={closeDetect}>
         <section className="detect-dialog" role="dialog" aria-modal="true" aria-label="智能内容识别" onMouseDown={(event) => event.stopPropagation()}>
-          <header><div><h3>智能内容识别</h3><p>仅在你粘贴、拖放、选文件或点击识别后本地分析，最大 1 MB。</p></div><button type="button" onClick={() => setIsDetectOpen(false)} aria-label="关闭">×</button></header>
+          <header><div><h3>智能内容识别</h3><p>仅在你粘贴、拖放、选文件或点击识别后本地分析，最大 1 MB。</p></div><button type="button" onClick={closeDetect} aria-label="关闭">×</button></header>
           <label className="detect-drop" onDragOver={(event) => event.preventDefault()} onDrop={(event) => { event.preventDefault(); void readSelectedFile(event.dataTransfer.files[0]); }}>
             <textarea autoFocus value={detectValue} placeholder="在这里粘贴 JSON、YAML、JWT、URL 等内容" onChange={(event) => setDetectValue(event.target.value)} onPaste={(event) => { const value = event.clipboardData.getData("text"); if (value) { event.preventDefault(); analyzeInput(value); } }} />
             <span>也可以拖放文件，或 <strong>选择文件</strong></span>
             <input type="file" onChange={(event) => void readSelectedFile(event.target.files?.[0])} />
           </label>
           <div className="detect-actions"><button type="button" disabled={!detectValue} onClick={() => analyzeInput(detectValue)}>识别当前输入</button><span>{detection ? `${detection.byteLength.toLocaleString()} bytes` : "内容不会上传或保存"}</span></div>
-          {detection?.status === "too-large" && <div className="error-banner">内容超过 1 MB 识别上限，请直接打开对应工具处理。</div>}
-          {detection?.status === "timed-out" && <div className="error-banner">识别超过 40 ms 时间预算，已停止分析。</div>}
+          {detection?.status === "too-large" && <div className="error-banner" role="alert">内容超过 1 MB 识别上限，请直接打开对应工具处理。</div>}
+          {detection?.status === "timed-out" && <div className="error-banner" role="alert">识别超过 40 ms 时间预算，已停止分析。</div>}
           {detection?.status === "unknown" && <div className="detect-empty">暂未识别出明确格式，可继续编辑后重试。</div>}
           {detection?.suggestions.map((item) => <button className="detect-suggestion" type="button" key={`${item.kind}-${item.toolId}`} onClick={() => sendToTool(null, item.toolId, detectValue, item.kind)}><span><strong>{item.label}</strong><small>{item.kind.toUpperCase()} · 置信度 {Math.round(item.confidence * 100)}%</small></span><span>打开 →</span></button>)}
         </section>

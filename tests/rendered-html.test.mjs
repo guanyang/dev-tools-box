@@ -42,8 +42,8 @@ test("server-renders the developer tools workbench", async () => {
   assert.match(html, /结构化数据工作台/);
   assert.match(html, /全部用左侧/);
   assert.match(html, /全部用右侧/);
-  assert.match(html, /左合右/);
-  assert.match(html, /右合左/);
+  assert.match(html, /用左侧覆盖右侧/);
+  assert.match(html, /用右侧覆盖左侧/);
   assert.match(html, /aria-expanded="false"/);
   assert.match(html, /展开工具栏/);
 });
@@ -89,7 +89,8 @@ test("keeps the workbench modular and free of starter preview artifacts", async 
 
   assert.match(page, /DevToolsWorkbench/);
   assert.match(workbench, /export function DevToolsWorkbench/);
-  assert.match(workbench, /toolLoaders\[activeTool\]/);
+  assert.match(workbench, /toolLoaders\[toolId\]/);
+  assert.match(workbench, /visitedTools\.map/);
   assert.match(workbench, /filterTools\(tools, query, category\)/);
   assert.match(workbench, /FAVORITES_KEY/);
   assert.match(workbench, /RECENT_KEY/);
@@ -157,7 +158,11 @@ test("collapsed tool rail leaves enough room for an unclipped tool icon", async 
   const tabPadding = Number(styles.match(/\.tool-tab\s*\{[\s\S]*?padding:\s*(\d+)px/)?.[1]);
   const tabBorder = Number(styles.match(/\.tool-tab\s*\{[\s\S]*?border:\s*(\d+)px/)?.[1]);
   const iconWidth = Number(styles.match(/\.tool-icon\s*\{[\s\S]*?width:\s*(\d+)px/)?.[1]);
-  const scrollbarWidth = Number(styles.match(/\.tool-nav::-webkit-scrollbar\s*\{[\s\S]*?width:\s*(\d+)px/)?.[1]);
+  const collapsedTabColumns = styles.match(/\.tool-tab\s*\{[\s\S]*?grid-template-columns:\s*([^;]+);/)?.[1].trim();
+  const scrollbarHidden = /\.tool-nav\s*\{[\s\S]*?scrollbar-width:\s*none/.test(styles);
+  const scrollbarWidth = scrollbarHidden
+    ? 0
+    : Number(styles.match(/\.tool-nav::-webkit-scrollbar\s*\{[\s\S]*?width:\s*(\d+)px/)?.[1]);
   const requiredWidth = railPadding * 2 + railBorder + navPadding + scrollbarWidth
     + tabPadding * 2 + tabBorder * 2 + iconWidth;
 
@@ -165,5 +170,8 @@ test("collapsed tool rail leaves enough room for an unclipped tool icon", async 
     collapsedWidth >= requiredWidth,
     `collapsed rail is ${collapsedWidth}px but needs at least ${requiredWidth}px`,
   );
-  assert.match(styles, /\.tool-nav\s*\{[\s\S]*?scrollbar-width:\s*thin/);
+  assert.match(styles, /\.tool-nav\s*\{[\s\S]*?scrollbar-width:\s*none/);
+  assert.match(styles, /\.tool-nav::-webkit-scrollbar\s*\{[\s\S]*?display:\s*none/);
+  assert.equal(collapsedTabColumns, `${iconWidth}px`, "collapsed tabs must not retain the expanded label column");
+  assert.match(styles, /\.rail-expanded \.tool-tab\s*\{[\s\S]*?grid-template-columns:\s*48px 236px/);
 });

@@ -41,6 +41,7 @@ export type ToolIconName =
   | "qr-code";
 
 export type ToolValueType = "text" | "json" | "yaml" | "xml" | "toml" | "csv" | "url" | "base64" | "jwt" | "image";
+export type ToolFocusLayout = "immersive" | "wide" | "split-preview";
 
 export type ToolDefinition = {
   id: ToolId;
@@ -53,6 +54,7 @@ export type ToolDefinition = {
   produces: readonly ToolValueType[];
   maxInputBytes: number;
   execution: "sync" | "worker";
+  focusLayout: ToolFocusLayout;
   sensitive?: boolean;
 };
 
@@ -66,7 +68,7 @@ export const tools: ToolDefinition[] = [
     category: "text",
     keywords: ["diff", "compare", "text", "文档", "文本"],
     icon: "file-diff",
-    accepts: ["text"], produces: ["text"], maxInputBytes: 1_000_000, execution: "sync",
+    accepts: ["text"], produces: ["text"], maxInputBytes: 1_000_000, execution: "sync", focusLayout: "immersive",
   },
   {
     id: "json-format",
@@ -75,7 +77,7 @@ export const tools: ToolDefinition[] = [
     category: "data",
     keywords: ["json", "format", "minify", "格式化", "压缩"],
     icon: "braces",
-    accepts: ["json", "text"], produces: ["json"], maxInputBytes: 5_000_000, execution: "worker",
+    accepts: ["json", "text"], produces: ["json"], maxInputBytes: 5_000_000, execution: "worker", focusLayout: "immersive",
   },
   {
     id: "json-diff",
@@ -84,7 +86,7 @@ export const tools: ToolDefinition[] = [
     category: "data",
     keywords: ["json", "diff", "compare", "合并", "差异"],
     icon: "git-compare",
-    accepts: ["json"], produces: ["json"], maxInputBytes: 2_000_000, execution: "sync",
+    accepts: ["json"], produces: ["json"], maxInputBytes: 2_000_000, execution: "sync", focusLayout: "immersive",
   },
   {
     id: "password",
@@ -93,7 +95,7 @@ export const tools: ToolDefinition[] = [
     category: "generate",
     keywords: ["password", "random", "密码", "随机"],
     icon: "key",
-    accepts: ["text"], produces: ["text"], maxInputBytes: 4096, execution: "sync", sensitive: true,
+    accepts: ["text"], produces: ["text"], maxInputBytes: 4096, execution: "sync", focusLayout: "wide", sensitive: true,
   },
   {
     id: "codec",
@@ -102,7 +104,7 @@ export const tools: ToolDefinition[] = [
     category: "data",
     keywords: ["base64", "url", "jwt", "gzip", "encode", "decode", "编解码"],
     icon: "binary",
-    accepts: ["text", "json", "yaml", "xml", "toml", "csv", "url", "base64", "jwt"], produces: ["text", "json", "base64"], maxInputBytes: 5_000_000, execution: "sync",
+    accepts: ["text", "json", "yaml", "xml", "toml", "csv", "url", "base64", "jwt"], produces: ["text", "json", "base64"], maxInputBytes: 5_000_000, execution: "sync", focusLayout: "wide",
   },
   {
     id: "id-generator",
@@ -111,16 +113,16 @@ export const tools: ToolDefinition[] = [
     category: "generate",
     keywords: ["uuid", "ulid", "token", "id", "标识符"],
     icon: "fingerprint",
-    accepts: ["text"], produces: ["text"], maxInputBytes: 4096, execution: "sync", sensitive: true,
+    accepts: ["text"], produces: ["text"], maxInputBytes: 4096, execution: "sync", focusLayout: "wide", sensitive: true,
   },
   {
     id: "hash-checksum",
     label: "哈希与文件校验",
-    description: "计算文本或文件的 SHA-256、SHA-512 与 HMAC。",
+    description: "计算文本或文件的 MD5、SHA-1、SHA-2 与 HMAC。",
     category: "security",
-    keywords: ["hash", "sha256", "sha512", "hmac", "checksum", "文件校验"],
+    keywords: ["hash", "md5", "sha1", "sha256", "sha384", "sha512", "hmac", "checksum", "文件校验"],
     icon: "hash",
-    accepts: ["text"], produces: ["text"], maxInputBytes: 20_000_000, execution: "worker", sensitive: true,
+    accepts: ["text"], produces: ["text"], maxInputBytes: 20_000_000, execution: "worker", focusLayout: "wide", sensitive: true,
   },
   {
     id: "time-cron",
@@ -129,7 +131,7 @@ export const tools: ToolDefinition[] = [
     category: "time",
     keywords: ["timestamp", "timezone", "cron", "unix", "时间戳", "时区"],
     icon: "calendar-clock",
-    accepts: ["text"], produces: ["text"], maxInputBytes: 100_000, execution: "sync",
+    accepts: ["text"], produces: ["text"], maxInputBytes: 100_000, execution: "sync", focusLayout: "wide",
   },
   {
     id: "regex-tester",
@@ -138,7 +140,7 @@ export const tools: ToolDefinition[] = [
     category: "text",
     keywords: ["regex", "regexp", "replace", "match", "正则", "替换"],
     icon: "regex",
-    accepts: ["text"], produces: ["text"], maxInputBytes: 2_000_000, execution: "sync",
+    accepts: ["text"], produces: ["text"], maxInputBytes: 2_000_000, execution: "sync", focusLayout: "wide",
   },
   {
     id: "data-converter",
@@ -147,7 +149,7 @@ export const tools: ToolDefinition[] = [
     category: "data",
     keywords: ["json", "yaml", "xml", "toml", "csv", "sql", "schema", "jsonpath", "转换", "查询"],
     icon: "refresh",
-    accepts: ["json", "yaml", "xml", "toml", "csv", "text"], produces: ["json", "yaml", "xml", "toml", "csv"], maxInputBytes: 5_000_000, execution: "worker",
+    accepts: ["json", "yaml", "xml", "toml", "csv", "text"], produces: ["json", "yaml", "xml", "toml", "csv"], maxInputBytes: 5_000_000, execution: "worker", focusLayout: "wide",
   },
   {
     id: "jwt-inspector",
@@ -156,7 +158,7 @@ export const tools: ToolDefinition[] = [
     category: "security",
     keywords: ["jwt", "jwk", "signature", "token", "签名", "校验"],
     icon: "shield-check",
-    accepts: ["jwt", "text"], produces: ["json", "text"], maxInputBytes: 100_000, execution: "sync", sensitive: true,
+    accepts: ["jwt", "text"], produces: ["json", "text"], maxInputBytes: 100_000, execution: "sync", focusLayout: "wide", sensitive: true,
   },
   {
     id: "qr-generator",
@@ -165,7 +167,7 @@ export const tools: ToolDefinition[] = [
     category: "generate",
     keywords: ["qr", "qrcode", "二维码", "barcode", "条形码", "code128", "code39", "ean", "upc", "itf"],
     icon: "qr-code",
-    accepts: ["text", "url", "base64", "json", "yaml"], produces: ["image"], maxInputBytes: 4096, execution: "sync",
+    accepts: ["text", "url", "base64", "json", "yaml"], produces: ["image"], maxInputBytes: 4096, execution: "sync", focusLayout: "split-preview",
   },
 ];
 

@@ -51,6 +51,17 @@ export const COMMON_TIME_ZONES = [
   "Africa/Johannesburg",
 ] as const;
 
+export function formatTimeZoneLabel(timeZone: string, date = new Date()): string {
+  const offsetName = new Intl.DateTimeFormat("en-US", {
+    timeZone,
+    timeZoneName: "longOffset",
+  }).formatToParts(date).find((part) => part.type === "timeZoneName")?.value;
+  const offset = !offsetName || offsetName === "GMT"
+    ? "UTC+00:00"
+    : offsetName.replace("GMT", "UTC");
+  return `${offset} · ${timeZone}`;
+}
+
 function parseCronField(
   source: string,
   min: number,

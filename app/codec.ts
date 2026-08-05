@@ -17,7 +17,7 @@ export const codecMethods: CodecMethod[] = [
   { id: "base64-encode", label: "Base64编码", description: "UTF-8 文本", group: "encode" },
   { id: "md5", label: "MD5计算", description: "输出 32 位摘要", group: "encode" },
   { id: "hex-encode", label: "十六进制编码", description: "UTF-8 字节", group: "encode" },
-  { id: "sha1", label: "Sha1加密", description: "输出 40 位摘要", group: "encode" },
+  { id: "sha1", label: "SHA-1 摘要", description: "输出 40 位摘要", group: "encode" },
   { id: "html-encode", label: "HTML普通编码", description: "转义特殊字符", group: "encode" },
   { id: "html-deep-encode", label: "HTML深度编码", description: "全部转为实体", group: "encode" },
   { id: "html-to-js", label: "HTML转JS", description: "转为 JS 字符串", group: "encode" },

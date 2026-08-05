@@ -36,7 +36,7 @@ export function OutputActions({ sourceToolId, value, valueType, filename, downlo
           {targets.map((tool) => <option value={tool.id} key={tool.id}>{tool.label}</option>)}
         </select>
       </label>
-      <button type="button" disabled={!value || !selectedTarget} onClick={() => selectedTarget && sendToTool(sourceToolId, selectedTarget, value, valueType)}>打开</button>
+      <button type="button" disabled={!value || !selectedTarget} onClick={() => selectedTarget && sendToTool(sourceToolId, selectedTarget, value, valueType)}>发送并打开</button>
     </div>
     <CopyToast status={copyStatus} />
   </>;

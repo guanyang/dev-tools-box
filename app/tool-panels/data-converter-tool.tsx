@@ -26,7 +26,7 @@ const sampleJson = `{
 }`;
 
 export default function DataConverterTool() {
-  const [mode, setMode] = useState<"convert" | "schema" | "sql">("convert");
+  const [mode, setMode] = useState<"convert" | "jsonpath" | "schema" | "sql">("convert");
   const [sourceFormat, setSourceFormat] = useState<DataFormat>("json");
   const [targetFormat, setTargetFormat] = useState<DataFormat>("yaml");
   const [input, setInput] = useState(sampleJson);
@@ -97,10 +97,11 @@ export default function DataConverterTool() {
     <section className="tool-panel">
       <div className="subtool-tabs" role="tablist" aria-label="数据工具模式">
         <button type="button" role="tab" aria-selected={mode === "convert"} onClick={() => setMode("convert")}>格式转换</button>
+        <button type="button" role="tab" aria-selected={mode === "jsonpath"} onClick={() => setMode("jsonpath")}>JSONPath 查询</button>
         <button type="button" role="tab" aria-selected={mode === "schema"} onClick={() => setMode("schema")}>JSON Schema</button>
         <button type="button" role="tab" aria-selected={mode === "sql"} onClick={() => setMode("sql")}>SQL 格式化</button>
       </div>
-      {error && <div className="error-banner">{error}</div>}
+      {error && <div className="error-banner" role="alert">{error}</div>}
       {mode === "convert" && <>
         <div className="action-bar">
           <label>来源 <select value={sourceFormat} onChange={(event) => setSourceFormat(event.target.value as DataFormat)}>{formats.map((format) => <option key={format}>{format}</option>)}</select></label>
@@ -116,19 +117,20 @@ export default function DataConverterTool() {
           <label className="editor-block"><span>输出 {targetFormat.toUpperCase()}</span><textarea readOnly value={output} placeholder="转换结果将显示在这里" /></label>
         </div>
         <OutputActions sourceToolId="data-converter" value={output} valueType={targetFormat} filename={`converted.${targetFormat}`} />
-        <section className="subtool-card jsonpath-card">
-          <header><h3>JSONPath 查询</h3><span>仅对当前 JSON 输入执行</span></header>
-          <div className="inline-form"><label className="text-control grow"><span>JSONPath</span><input value={path} onChange={(event) => setPath(event.target.value)} disabled={sourceFormat !== "json"} /></label><button className="primary-action" type="button" disabled={sourceFormat !== "json"} onClick={query}>执行查询</button></div>
-          {queryResult && <pre className="json-code-view query-output">{queryResult}</pre>}
-        </section>
       </>}
+      {mode === "jsonpath" && <section className="subtool-card jsonpath-card">
+        <header><h3>JSONPath 查询</h3><span>对 JSON 数据执行路径查询</span></header>
+        <label className="editor-block"><span>JSON 数据</span><textarea value={input} onChange={(event) => setInput(event.target.value)} spellCheck={false} /></label>
+        <div className="inline-form"><label className="text-control grow"><span>JSONPath</span><input value={path} onChange={(event) => setPath(event.target.value)} /></label><button className="primary-action" type="button" onClick={query}>执行查询</button></div>
+        <pre className="json-code-view query-output">{queryResult || "查询结果将显示在这里"}</pre>
+      </section>}
       {mode === "schema" && <>
         <div className="action-bar"><button type="button" onClick={validateSchema}>校验数据</button><button type="button" disabled={!schemaResult} onClick={() => copyText(schemaResult)}>复制结果</button></div>
         <div className="editor-grid">
           <label className="editor-block"><span>JSON 数据</span><textarea value={input} onChange={(event) => setInput(event.target.value)} spellCheck={false} /></label>
           <label className="editor-block"><span>JSON Schema</span><textarea value={schema} onChange={(event) => setSchema(event.target.value)} spellCheck={false} /></label>
         </div>
-        {schemaResult && <pre className={schemaResult.startsWith("校验通过") ? "success-banner" : "error-banner"}>{schemaResult}</pre>}
+        {schemaResult && <pre role={schemaResult.startsWith("校验通过") ? "status" : "alert"} className={schemaResult.startsWith("校验通过") ? "success-banner" : "error-banner"}>{schemaResult}</pre>}
       </>}
       {mode === "sql" && <>
         <div className="action-bar">

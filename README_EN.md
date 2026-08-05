@@ -49,6 +49,7 @@
 - 🎨 **Sleek UI/UX**:
   - Built with **React 19 + TailwindCSS 4.0** with smooth transitions and interactions.
   - Supports **System/Light/Dark** three-state theme preferences, saved locally in your browser.
+  - Provides a reusable focus mode for every tool, with layouts tailored to immersive editors, wide forms, and split previews.
   - Integrated with **CodeMirror** for syntax highlighting and real-time validation.
 - 🔎 **Fast Tool Discovery**: Search by name or keyword, filter by category, and keep local-only favorites and recent tools.
 - ⌨️ **Keyboard First**: Press `Cmd/Ctrl + K` to open the command palette, using arrow keys and Enter to search and switch tools instantly.
@@ -80,15 +81,18 @@ You can use this toolbox in the following two ways:
 - Side-by-side real-time text comparison.
 - Clean color-coded highlighting: "Add (Green)", "Delete (Red)", and "Modify (Yellow)".
 - Support for merging changes or copying results instantly.
+- Resize the input and diff regions, view either region alone, wrap long lines, and synchronize scrolling.
 
 ### 2. 🎛️ JSON Formatter
 - CodeMirror-based editor supporting line numbers, matching brackets, and syntax highlighting.
 - Pre-configured actions: Format (Beautify) and Minify.
 - Real-time JSON validation with detailed error descriptions.
+- Equal-height input and output editors fill the available workspace with a draggable split.
 
 ### 3. 🔍 JSON Diff
 - Structural comparison for nested JSON objects.
 - **Key-order independence**: Automatically ignores sorting differences in keys and focuses on content changes.
+- Resize the two inputs and result region, isolate either region, synchronize scrolling, and reset the layout quickly.
 
 ### 4. 🔑 Password Generator
 - High-entropy cryptographically random passwords.
@@ -115,8 +119,8 @@ You can use this toolbox in the following two ways:
 - Uses browser cryptographic randomness with per-item and bulk copy actions.
 
 ### 7. #️⃣ Hash & Checksum
-- Calculate SHA-256 and SHA-512 for text or local files.
-- Generate HMAC values with a user-provided key without uploading data.
+- Calculate MD5, SHA-1, SHA-256, SHA-384, and SHA-512 for text or local files, with streaming file processing.
+- Generate SHA-1, SHA-256, SHA-384, and SHA-512 HMAC values; MD5 and SHA-1 are clearly marked for legacy checksum compatibility only.
 
 ### 8. 🕐 Time & Cron
 - Four tabs cover timestamp conversion, time-zone conversion, upcoming Cron runs, and date/time calculations.
@@ -127,7 +131,8 @@ You can use this toolbox in the following two ways:
 
 ### 9. 🧪 Regex Tester
 - Preview matches, offsets, captures, named groups, and replacement output in real time.
-- Supports the `g`, `i`, `m`, `s`, and `u` flags.
+- Supports the `g`, `i`, `m`, `s`, and `u` flags with concise intent descriptions.
+- Includes presets for email, mainland China mobile numbers, URLs, IPv4, dates, times, UUIDs, semantic versions, colors, and Chinese characters.
 
 ### 10. 🔄 Structured Data Workbench
 - Convert between JSON, YAML, XML, TOML, and CSV.
@@ -205,7 +210,7 @@ This project supports packing offline extensions for Chrome, Edge, and Firefox.
 
 No need to install Node.js or run any compilation commands:
 
-1. Go to the [GitHub Releases](https://github.com/guanyang/dev-tools-box/releases) page and download the ZIP pack for your browser (e.g. `dev-tools-box-chrome-1.3.0.zip`).
+1. Go to the [GitHub Releases](https://github.com/guanyang/dev-tools-box/releases) page and download the ZIP pack for your browser (e.g. `dev-tools-box-chrome-1.5.0.zip`).
 2. Extract the downloaded ZIP archive into a local folder.
 3. Load the unpacked extension by following the [⚙️ Installation Guide](#extension-install) below.
 
