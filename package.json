@@ -39,7 +39,7 @@
     "yaml": "^2.9.0"
   },
   "devDependencies": {
-    "@cloudflare/vite-plugin": "1.50.0",
+    "@cloudflare/vite-plugin": "1.51.3",
     "@tailwindcss/postcss": "4.2.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
@@ -60,7 +60,7 @@
     "vinext": "0.0.50",
     "vite": "8.1.4",
     "vitest": "^4.1.10",
-    "wrangler": "4.118.0"
+    "wrangler": "4.121.0"
   },
   "type": "module"
 }
